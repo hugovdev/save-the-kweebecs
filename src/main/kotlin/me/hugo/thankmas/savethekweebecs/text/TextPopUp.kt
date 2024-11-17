@@ -1,7 +1,7 @@
 package me.hugo.thankmas.savethekweebecs.text
 
-import me.hugo.savethekweebecs.SaveTheKweebecs
-import me.hugo.savethekweebecs.extension.translate
+import me.hugo.thankmas.savethekweebecs.SaveTheKweebecs
+import me.hugo.thankmas.savethekweebecs.extension.translate
 import org.bukkit.Color
 import org.bukkit.Location
 import org.bukkit.entity.Display

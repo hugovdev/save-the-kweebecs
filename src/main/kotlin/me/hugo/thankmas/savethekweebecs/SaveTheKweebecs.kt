@@ -1,23 +1,19 @@
 package me.hugo.thankmas.savethekweebecs
 
 import com.infernalsuite.aswm.api.SlimePlugin
-import me.hugo.savethekweebecs.arena.GameManager
-import me.hugo.savethekweebecs.arena.map.ArenaMap
-import me.hugo.savethekweebecs.clickableitems.ItemSetManager
-import me.hugo.savethekweebecs.commands.LobbyCommand
-import me.hugo.savethekweebecs.commands.SaveTheKweebecsCommand
-import me.hugo.thankmas.savethekweebecs.dependencyinjection.SaveTheKweebecsModules
-import me.hugo.savethekweebecs.lang.LanguageManager
-import me.hugo.savethekweebecs.listeners.ArenaListener
-import me.hugo.thankmas.savethekweebecs.listeners.JoinLeaveListener
-import me.hugo.savethekweebecs.music.SoundManager
-import me.hugo.savethekweebecs.player.SaveTheKweebecsPlayerData
-import me.hugo.thankmas.savethekweebecs.scoreboard.KweebecScoreboardManager
-import me.hugo.savethekweebecs.team.TeamManager
-import me.hugo.savethekweebecs.text.TextPopUpManager
-import me.hugo.savethekweebecs.util.menus.MenuRegistry
 import me.hugo.thankmas.ThankmasPlugin
+import me.hugo.thankmas.items.itemsets.ItemSetRegistry
 import me.hugo.thankmas.player.PlayerDataManager
+import me.hugo.thankmas.savethekweebecs.arena.GameManager
+import me.hugo.thankmas.savethekweebecs.arena.map.ArenaMap
+import me.hugo.thankmas.savethekweebecs.commands.LobbyCommand
+import me.hugo.thankmas.savethekweebecs.commands.SaveTheKweebecsCommand
+import me.hugo.thankmas.savethekweebecs.lang.LanguageManager
+import me.hugo.thankmas.savethekweebecs.listeners.ArenaListener
+import me.hugo.thankmas.savethekweebecs.music.SoundManager
+import me.hugo.thankmas.savethekweebecs.player.SaveTheKweebecsPlayerData
+import me.hugo.thankmas.savethekweebecs.team.TeamManager
+import me.hugo.thankmas.savethekweebecs.text.TextPopUpManager
 import org.bukkit.Bukkit
 import org.koin.core.component.inject
 import org.koin.core.context.startKoin
@@ -40,7 +36,7 @@ public class SaveTheKweebecs : ThankmasPlugin(listOf("save_the_kweebecs")) {
     private val textPopUp: TextPopUpManager by inject()
 
     private val menuRegistry: MenuRegistry by inject()
-    private val itemManager: ItemSetManager by inject()
+    private val itemManager: ItemSetRegistry by inject()
 
     private val joinLeaveListener: me.hugo.thankmas.savethekweebecs.listeners.JoinLeaveListener by inject()
 

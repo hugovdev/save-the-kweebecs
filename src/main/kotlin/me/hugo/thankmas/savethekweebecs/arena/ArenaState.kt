@@ -1,7 +1,7 @@
 package me.hugo.thankmas.savethekweebecs.arena
 
-import me.hugo.savethekweebecs.SaveTheKweebecs
-import me.hugo.savethekweebecs.lang.LanguageManager
+import me.hugo.thankmas.savethekweebecs.SaveTheKweebecs
+import me.hugo.thankmas.savethekweebecs.lang.LanguageManager
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextColor

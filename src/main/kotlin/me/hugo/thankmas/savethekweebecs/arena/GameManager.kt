@@ -1,12 +1,12 @@
 package me.hugo.thankmas.savethekweebecs.arena
 
-import me.hugo.savethekweebecs.SaveTheKweebecs
-import me.hugo.savethekweebecs.arena.map.ArenaMap
-import me.hugo.savethekweebecs.extension.*
-import me.hugo.savethekweebecs.lang.LanguageManager
-import me.hugo.savethekweebecs.music.SoundManager
+import me.hugo.thankmas.savethekweebecs.SaveTheKweebecs
+import me.hugo.thankmas.savethekweebecs.arena.map.ArenaMap
+import me.hugo.thankmas.savethekweebecs.extension.*
+import me.hugo.thankmas.savethekweebecs.lang.LanguageManager
+import me.hugo.thankmas.savethekweebecs.music.SoundManager
 import me.hugo.thankmas.savethekweebecs.scoreboard.KweebecScoreboardManager
-import me.hugo.savethekweebecs.task.GameControllerTask
+import me.hugo.thankmas.savethekweebecs.task.GameControllerTask
 import me.hugo.thankmas.gui.paginated.PaginatedMenu
 import me.hugo.thankmas.items.itemsets.ItemSetRegistry
 import me.hugo.thankmas.location.MapPoint

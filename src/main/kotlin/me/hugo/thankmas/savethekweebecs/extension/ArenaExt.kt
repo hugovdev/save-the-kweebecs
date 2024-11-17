@@ -1,10 +1,10 @@
 package me.hugo.thankmas.savethekweebecs.extension
 
-import me.hugo.savethekweebecs.arena.Arena
-import me.hugo.savethekweebecs.arena.ArenaState
-import me.hugo.savethekweebecs.arena.GameManager
-import me.hugo.savethekweebecs.music.SoundManager
-import me.hugo.savethekweebecs.team.TeamManager
+import me.hugo.thankmas.savethekweebecs.arena.Arena
+import me.hugo.thankmas.savethekweebecs.arena.ArenaState
+import me.hugo.thankmas.savethekweebecs.arena.GameManager
+import me.hugo.thankmas.savethekweebecs.music.SoundManager
+import me.hugo.thankmas.savethekweebecs.team.TeamManager
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder

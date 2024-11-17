@@ -5,11 +5,11 @@ import com.infernalsuite.aswm.api.exceptions.SlimeException
 import com.infernalsuite.aswm.api.world.SlimeWorld
 import com.infernalsuite.aswm.api.world.properties.SlimeProperties
 import com.infernalsuite.aswm.api.world.properties.SlimePropertyMap
-import me.hugo.savethekweebecs.SaveTheKweebecs
-import me.hugo.savethekweebecs.arena.Arena
-import me.hugo.savethekweebecs.arena.GameManager
-import me.hugo.savethekweebecs.arena.events.ArenaEvent
-import me.hugo.savethekweebecs.team.TeamManager
+import me.hugo.thankmas.savethekweebecs.SaveTheKweebecs
+import me.hugo.thankmas.savethekweebecs.arena.Arena
+import me.hugo.thankmas.savethekweebecs.arena.GameManager
+import me.hugo.thankmas.savethekweebecs.arena.events.ArenaEvent
+import me.hugo.thankmas.savethekweebecs.team.TeamManager
 import me.hugo.thankmas.location.MapPoint
 import org.bukkit.Bukkit
 import org.bukkit.Location

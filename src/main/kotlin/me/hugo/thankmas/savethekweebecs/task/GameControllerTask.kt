@@ -1,10 +1,10 @@
 package me.hugo.thankmas.savethekweebecs.task
 
-import me.hugo.savethekweebecs.arena.Arena
-import me.hugo.savethekweebecs.arena.ArenaState
-import me.hugo.savethekweebecs.arena.GameManager
-import me.hugo.savethekweebecs.extension.*
-import me.hugo.savethekweebecs.util.InstantFirework
+import me.hugo.thankmas.savethekweebecs.arena.Arena
+import me.hugo.thankmas.savethekweebecs.arena.ArenaState
+import me.hugo.thankmas.savethekweebecs.arena.GameManager
+import me.hugo.thankmas.savethekweebecs.extension.*
+import me.hugo.thankmas.savethekweebecs.util.InstantFirework
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder
 import net.kyori.adventure.title.Title
 import org.bukkit.*

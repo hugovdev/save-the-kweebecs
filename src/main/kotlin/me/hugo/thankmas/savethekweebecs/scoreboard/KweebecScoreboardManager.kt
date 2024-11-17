@@ -1,10 +1,10 @@
 package me.hugo.thankmas.savethekweebecs.scoreboard
 
-import me.hugo.savethekweebecs.SaveTheKweebecs
-import me.hugo.savethekweebecs.arena.ArenaState
-import me.hugo.savethekweebecs.extension.arena
-import me.hugo.savethekweebecs.extension.playerDataOrCreate
-import me.hugo.savethekweebecs.player.SaveTheKweebecsPlayerData
+import me.hugo.thankmas.savethekweebecs.SaveTheKweebecs
+import me.hugo.thankmas.savethekweebecs.arena.ArenaState
+import me.hugo.thankmas.savethekweebecs.extension.arena
+import me.hugo.thankmas.savethekweebecs.extension.playerDataOrCreate
+import me.hugo.thankmas.savethekweebecs.player.SaveTheKweebecsPlayerData
 import me.hugo.thankmas.player.translate
 import me.hugo.thankmas.scoreboard.ScoreboardTemplate
 import me.hugo.thankmas.scoreboard.ScoreboardTemplateManager

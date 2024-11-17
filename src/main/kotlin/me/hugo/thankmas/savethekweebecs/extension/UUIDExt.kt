@@ -1,7 +1,7 @@
 package me.hugo.thankmas.savethekweebecs.extension
 
-import me.hugo.savethekweebecs.SaveTheKweebecs
-import me.hugo.savethekweebecs.lang.LanguageManager
+import me.hugo.thankmas.savethekweebecs.SaveTheKweebecs
+import me.hugo.thankmas.savethekweebecs.lang.LanguageManager
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.minimessage.MiniMessage
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver

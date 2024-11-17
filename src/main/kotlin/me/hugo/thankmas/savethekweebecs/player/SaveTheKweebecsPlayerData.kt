@@ -2,11 +2,11 @@ package me.hugo.thankmas.savethekweebecs.player
 
 import com.destroystokyo.paper.profile.ProfileProperty
 import dev.kezz.miniphrase.audience.sendTranslated
-import me.hugo.savethekweebecs.SaveTheKweebecs
-import me.hugo.savethekweebecs.arena.Arena
-import me.hugo.savethekweebecs.extension.*
+import me.hugo.thankmas.savethekweebecs.SaveTheKweebecs
+import me.hugo.thankmas.savethekweebecs.arena.Arena
+import me.hugo.thankmas.savethekweebecs.extension.*
 import me.hugo.thankmas.savethekweebecs.scoreboard.KweebecScoreboardManager
-import me.hugo.savethekweebecs.team.TeamManager
+import me.hugo.thankmas.savethekweebecs.team.TeamManager
 import me.hugo.thankmas.items.*
 import me.hugo.thankmas.items.itemsets.ItemSetRegistry
 import me.hugo.thankmas.lang.TranslatedComponent

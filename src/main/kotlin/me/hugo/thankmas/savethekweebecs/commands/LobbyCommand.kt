@@ -1,6 +1,6 @@
 package me.hugo.thankmas.savethekweebecs.commands
 
-import me.hugo.savethekweebecs.extension.arena
+import me.hugo.thankmas.savethekweebecs.extension.arena
 import net.kyori.adventure.text.Component
 import org.bukkit.entity.Player
 import revxrsal.commands.annotation.Command

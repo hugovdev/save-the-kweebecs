@@ -1,6 +1,6 @@
 package me.hugo.thankmas.savethekweebecs.lang
 
-import me.hugo.savethekweebecs.SaveTheKweebecs
+import me.hugo.thankmas.savethekweebecs.SaveTheKweebecs
 import org.bukkit.Bukkit
 import org.bukkit.configuration.file.FileConfiguration
 import org.bukkit.configuration.file.YamlConfiguration

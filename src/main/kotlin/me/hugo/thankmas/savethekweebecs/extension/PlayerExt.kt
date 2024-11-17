@@ -1,11 +1,11 @@
 package me.hugo.thankmas.savethekweebecs.extension
 
 import com.destroystokyo.paper.MaterialTags
-import me.hugo.savethekweebecs.SaveTheKweebecs
-import me.hugo.savethekweebecs.arena.Arena
-import me.hugo.savethekweebecs.lang.LanguageManager
-import me.hugo.savethekweebecs.player.SaveTheKweebecsPlayerData
-import me.hugo.savethekweebecs.player.PlayerManager
+import me.hugo.thankmas.savethekweebecs.SaveTheKweebecs
+import me.hugo.thankmas.savethekweebecs.arena.Arena
+import me.hugo.thankmas.savethekweebecs.lang.LanguageManager
+import me.hugo.thankmas.savethekweebecs.player.SaveTheKweebecsPlayerData
+import me.hugo.thankmas.savethekweebecs.player.PlayerManager
 import me.hugo.thankmas.savethekweebecs.scoreboard.KweebecScoreboardManager
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.minimessage.MiniMessage

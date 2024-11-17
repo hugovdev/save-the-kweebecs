@@ -1,7 +1,7 @@
 package me.hugo.thankmas.savethekweebecs.music
 
-import me.hugo.savethekweebecs.extension.player
-import me.hugo.savethekweebecs.extension.translate
+import me.hugo.thankmas.savethekweebecs.extension.player
+import me.hugo.thankmas.savethekweebecs.extension.translate
 import net.kyori.adventure.key.Key
 import net.kyori.adventure.sound.Sound
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder

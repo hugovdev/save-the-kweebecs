@@ -1,12 +1,12 @@
 package me.hugo.thankmas.savethekweebecs.listeners
 
-import me.hugo.savethekweebecs.SaveTheKweebecs
-import me.hugo.savethekweebecs.arena.GameManager
-import me.hugo.savethekweebecs.extension.arena
-import me.hugo.savethekweebecs.extension.playerData
-import me.hugo.savethekweebecs.extension.updateBoardTags
-import me.hugo.savethekweebecs.music.SoundManager
-import me.hugo.savethekweebecs.player.PlayerManager
+import me.hugo.thankmas.savethekweebecs.SaveTheKweebecs
+import me.hugo.thankmas.savethekweebecs.arena.GameManager
+import me.hugo.thankmas.savethekweebecs.extension.arena
+import me.hugo.thankmas.savethekweebecs.extension.playerData
+import me.hugo.thankmas.savethekweebecs.extension.updateBoardTags
+import me.hugo.thankmas.savethekweebecs.music.SoundManager
+import me.hugo.thankmas.savethekweebecs.player.PlayerManager
 import org.bukkit.Bukkit
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener

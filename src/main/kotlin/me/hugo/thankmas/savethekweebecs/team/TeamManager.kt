@@ -1,8 +1,8 @@
 package me.hugo.thankmas.savethekweebecs.team
 
-import me.hugo.savethekweebecs.SaveTheKweebecs
-import me.hugo.savethekweebecs.extension.*
-import me.hugo.savethekweebecs.lang.LanguageManager
+import me.hugo.thankmas.savethekweebecs.SaveTheKweebecs
+import me.hugo.thankmas.savethekweebecs.extension.*
+import me.hugo.thankmas.savethekweebecs.lang.LanguageManager
 import me.hugo.thankmas.gui.Icon
 import me.hugo.thankmas.gui.Menu
 import me.hugo.thankmas.gui.paginated.PaginatedMenu

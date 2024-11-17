@@ -2,15 +2,15 @@ package me.hugo.thankmas.savethekweebecs.arena
 
 import com.infernalsuite.aswm.api.SlimePlugin
 import com.infernalsuite.aswm.api.world.SlimeWorld
-import me.hugo.savethekweebecs.SaveTheKweebecs
-import me.hugo.savethekweebecs.arena.events.ArenaEvent
-import me.hugo.savethekweebecs.arena.map.ArenaMap
-import me.hugo.savethekweebecs.arena.map.MapLocation
-import me.hugo.savethekweebecs.clickableitems.ItemSetManager
-import me.hugo.savethekweebecs.extension.*
-import me.hugo.savethekweebecs.lang.LanguageManager
+import me.hugo.thankmas.savethekweebecs.SaveTheKweebecs
+import me.hugo.thankmas.savethekweebecs.arena.events.ArenaEvent
+import me.hugo.thankmas.savethekweebecs.arena.map.ArenaMap
+import me.hugo.thankmas.savethekweebecs.arena.map.MapLocation
+import me.hugo.thankmas.savethekweebecs.clickableitems.ItemSetManager
+import me.hugo.thankmas.savethekweebecs.extension.*
+import me.hugo.thankmas.savethekweebecs.lang.LanguageManager
 import me.hugo.thankmas.savethekweebecs.scoreboard.KweebecScoreboardManager
-import me.hugo.savethekweebecs.team.TeamManager
+import me.hugo.thankmas.savethekweebecs.team.TeamManager
 import me.hugo.thankmas.location.MapPoint
 import net.citizensnpcs.api.CitizensAPI
 import net.citizensnpcs.api.npc.NPC
