@@ -1,16 +1,15 @@
 package me.hugo.thankmas.savethekweebecs.listeners
 
 import me.hugo.thankmas.savethekweebecs.SaveTheKweebecs
-import me.hugo.thankmas.savethekweebecs.game.map.MapRegistry
 import me.hugo.thankmas.savethekweebecs.extension.arena
 import me.hugo.thankmas.savethekweebecs.extension.playerData
 import me.hugo.thankmas.savethekweebecs.extension.updateBoardTags
+import me.hugo.thankmas.savethekweebecs.game.map.MapRegistry
 import me.hugo.thankmas.savethekweebecs.music.SoundManager
 import org.bukkit.Bukkit
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerJoinEvent
-import org.bukkit.event.player.PlayerLocaleChangeEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import org.koin.core.annotation.Single
 import org.koin.core.component.KoinComponent

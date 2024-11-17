@@ -1,11 +1,11 @@
 package me.hugo.thankmas.savethekweebecs.scoreboard
 
+import me.hugo.thankmas.player.translate
 import me.hugo.thankmas.savethekweebecs.SaveTheKweebecs
-import me.hugo.thankmas.savethekweebecs.game.arena.ArenaState
 import me.hugo.thankmas.savethekweebecs.extension.arena
 import me.hugo.thankmas.savethekweebecs.extension.playerData
+import me.hugo.thankmas.savethekweebecs.game.arena.ArenaState
 import me.hugo.thankmas.savethekweebecs.player.SaveTheKweebecsPlayerData
-import me.hugo.thankmas.player.translate
 import me.hugo.thankmas.scoreboard.ScoreboardTemplate
 import me.hugo.thankmas.scoreboard.ScoreboardTemplateManager
 import net.kyori.adventure.text.Component

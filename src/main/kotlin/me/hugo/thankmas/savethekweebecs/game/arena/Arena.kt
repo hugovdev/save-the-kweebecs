@@ -9,10 +9,10 @@ import me.hugo.thankmas.items.itemsets.ItemSetRegistry
 import me.hugo.thankmas.lang.TranslatedComponent
 import me.hugo.thankmas.location.MapPoint
 import me.hugo.thankmas.savethekweebecs.SaveTheKweebecs
+import me.hugo.thankmas.savethekweebecs.extension.*
 import me.hugo.thankmas.savethekweebecs.game.events.ArenaEvent
 import me.hugo.thankmas.savethekweebecs.game.map.ArenaMap
 import me.hugo.thankmas.savethekweebecs.game.map.MapRegistry
-import me.hugo.thankmas.savethekweebecs.extension.*
 import me.hugo.thankmas.savethekweebecs.team.TeamManager
 import net.citizensnpcs.api.CitizensAPI
 import net.citizensnpcs.api.npc.NPC
@@ -126,12 +126,11 @@ public class Arena(public val arenaMap: ArenaMap, public val displayName: String
         val team = playersPerTeam.keys.minBy { playersPerTeam[it]?.size ?: 0 }
         addPlayerTo(player, team)
 
-        announceTranslation(
-            "arena.join.global",
-            Placeholder.unparsed("player_name", player.name),
-            Placeholder.unparsed("current_players", arenaPlayers().size.toString()),
-            Placeholder.unparsed("max_players", arenaMap.maxPlayers.toString()),
-        )
+        announceTranslation("arena.join.global") {
+            Placeholder.unparsed("player_name", player.name)
+            Placeholder.unparsed("current_players", arenaPlayers().size.toString())
+            Placeholder.unparsed("max_players", arenaMap.maxPlayers.toString())
+        }
 
         itemManager.giveSetNullable(arenaState.itemSetKey, player)
 
@@ -154,12 +153,11 @@ public class Arena(public val arenaMap: ArenaMap, public val displayName: String
         if (!hasStarted()) {
             playerData.currentTeam?.let { removePlayerFrom(player, it) }
 
-            announceTranslation(
-                "arena.leave.global",
-                Placeholder.unparsed("player_name", player.name),
-                Placeholder.unparsed("current_players", arenaPlayers().size.toString()),
-                Placeholder.unparsed("max_players", arenaMap.maxPlayers.toString()),
-            )
+            announceTranslation("arena.leave.global") {
+                Placeholder.unparsed("player_name", player.name)
+                Placeholder.unparsed("current_players", arenaPlayers().size.toString())
+                Placeholder.unparsed("max_players", arenaMap.maxPlayers.toString())
+            }
         } else {
             player.damage(player.health)
             deadPlayers.remove(player)

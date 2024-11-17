@@ -9,8 +9,8 @@ import me.hugo.thankmas.lang.TranslatedComponent
 import me.hugo.thankmas.player.showTitle
 import me.hugo.thankmas.player.translate
 import me.hugo.thankmas.savethekweebecs.SaveTheKweebecs
-import me.hugo.thankmas.savethekweebecs.game.arena.Arena
 import me.hugo.thankmas.savethekweebecs.extension.*
+import me.hugo.thankmas.savethekweebecs.game.arena.Arena
 import me.hugo.thankmas.savethekweebecs.game.arena.ArenaRegistry
 import me.hugo.thankmas.savethekweebecs.music.SoundManager
 import me.hugo.thankmas.savethekweebecs.player.SaveTheKweebecsPlayerData
@@ -126,11 +126,10 @@ public class ArenaListener : TranslatedComponent, Listener {
                 // If there is no last attack, it was too long ago or the attacker has disconnected, player died
                 // by themselves!
                 if (lastAttack == null || lastAttack.time < System.currentTimeMillis() - (10000) || attacker == null) {
-                    arena.announceTranslation(
-                        "arena.death.self",
-                        Placeholder.unparsed("player_team_icon", playerData.currentTeam?.chatIcon ?: ""),
+                    arena.announceTranslation("arena.death.self") {
+                        Placeholder.unparsed("player_team_icon", playerData.currentTeam?.chatIcon ?: "")
                         Placeholder.unparsed("player", player.name)
-                    )
+                    }
                 } else {
                     val attackerData = attacker.playerData()
 
@@ -150,13 +149,12 @@ public class ArenaListener : TranslatedComponent, Listener {
                         )
                     )
 
-                    arena.announceTranslation(
-                        "arena.death.player",
-                        Placeholder.unparsed("player", player.name),
-                        Placeholder.unparsed("player_team_icon", playerData.currentTeam?.chatIcon ?: ""),
-                        Placeholder.unparsed("killer_team_icon", attackerData.currentTeam?.chatIcon ?: ""),
+                    arena.announceTranslation("arena.death.player") {
+                        Placeholder.unparsed("player", player.name)
+                        Placeholder.unparsed("player_team_icon", playerData.currentTeam?.chatIcon ?: "")
+                        Placeholder.unparsed("killer_team_icon", attackerData.currentTeam?.chatIcon ?: "")
                         Placeholder.unparsed("killer", attacker.name)
-                    )
+                    }
 
                     attackerData.addCoins(10, "kill")
                 }
@@ -195,15 +193,14 @@ public class ArenaListener : TranslatedComponent, Listener {
 
             if (location.block.type == Material.FIRE) location.block.type = Material.AIR
 
-            arena.announceTranslation(
-                "arena.${attackerTeam.id}.saved",
-                Placeholder.unparsed("player", player.name),
-                Placeholder.unparsed("player_team_icon", attackerTeam.chatIcon),
-                Placeholder.unparsed("npcs_saved", arena.remainingNPCs.count { it.value }.toString()),
+            arena.announceTranslation("arena.${attackerTeam.id}.saved") {
+                Placeholder.unparsed("player", player.name)
+                Placeholder.unparsed("player_team_icon", attackerTeam.chatIcon)
+                Placeholder.unparsed("npcs_saved", arena.remainingNPCs.count { it.value }.toString())
                 Placeholder.unparsed("total_npcs", arena.remainingNPCs.size.toString())
-            )
+            }
 
-            player.playerData()?.addCoins(15, "saved_${attackerTeam.id}")
+            player.playerData().addCoins(15, "saved_${attackerTeam.id}")
 
             location.world.spawnParticle(Particle.CLOUD, location.clone().add(0.0, 0.55, 0.0), 5, 0.05, 0.1, 0.05, 0.02)
 

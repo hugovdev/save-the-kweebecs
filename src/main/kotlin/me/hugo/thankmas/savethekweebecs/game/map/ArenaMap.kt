@@ -2,7 +2,6 @@ package me.hugo.thankmas.savethekweebecs.game.map
 
 import com.infernalsuite.aswm.api.exceptions.SlimeException
 import com.infernalsuite.aswm.api.world.SlimeWorld
-import me.hugo.thankmas.config.ConfigurationProvider
 import me.hugo.thankmas.config.string
 import me.hugo.thankmas.location.MapPoint
 import me.hugo.thankmas.markers.registry.MarkerRegistry

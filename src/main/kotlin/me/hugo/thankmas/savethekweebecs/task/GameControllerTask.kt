@@ -2,17 +2,18 @@ package me.hugo.thankmas.savethekweebecs.task
 
 import me.hugo.thankmas.lang.TranslatedComponent
 import me.hugo.thankmas.player.showTitle
-import me.hugo.thankmas.savethekweebecs.game.arena.Arena
-import me.hugo.thankmas.savethekweebecs.game.arena.ArenaState
-import me.hugo.thankmas.savethekweebecs.game.map.MapRegistry
 import me.hugo.thankmas.savethekweebecs.extension.*
+import me.hugo.thankmas.savethekweebecs.game.arena.Arena
 import me.hugo.thankmas.savethekweebecs.game.arena.ArenaRegistry
+import me.hugo.thankmas.savethekweebecs.game.arena.ArenaState
 import me.hugo.thankmas.savethekweebecs.util.InstantFirework
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder
 import net.kyori.adventure.title.Title
-import org.bukkit.*
+import org.bukkit.Color
+import org.bukkit.FireworkEffect
+import org.bukkit.GameMode
+import org.bukkit.Sound
 import org.bukkit.scheduler.BukkitRunnable
-import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
@@ -74,10 +75,9 @@ public class GameControllerTask : TranslatedComponent, BukkitRunnable() {
                     else "event.${arena.currentEvent?.name?.lowercase()}"
 
                     arena.playSound(Sound.BLOCK_NOTE_BLOCK_HAT)
-                    arena.announceTranslation(
-                        if (time == 1) "arena.$translationName.second" else "arena.$translationName.seconds",
+                    arena.announceTranslation(if (time == 1) "arena.$translationName.second" else "arena.$translationName.seconds") {
                         Placeholder.unparsed("count", time.toString())
-                    )
+                    }
                 }
 
                 respawnPlayers(arena)

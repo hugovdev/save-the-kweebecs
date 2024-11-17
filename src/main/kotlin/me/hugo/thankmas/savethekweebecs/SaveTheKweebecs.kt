@@ -7,11 +7,11 @@ import me.hugo.thankmas.listener.PlayerDataLoader
 import me.hugo.thankmas.listener.PlayerLocaleDetector
 import me.hugo.thankmas.listener.PlayerSpawnpointOnJoin
 import me.hugo.thankmas.player.PlayerDataManager
-import me.hugo.thankmas.savethekweebecs.game.map.MapRegistry
-import me.hugo.thankmas.savethekweebecs.game.map.ArenaMap
 import me.hugo.thankmas.savethekweebecs.commands.LobbyCommand
 import me.hugo.thankmas.savethekweebecs.commands.SaveTheKweebecsCommand
 import me.hugo.thankmas.savethekweebecs.dependencyinjection.SaveTheKweebecsModules
+import me.hugo.thankmas.savethekweebecs.game.map.ArenaMap
+import me.hugo.thankmas.savethekweebecs.game.map.MapRegistry
 import me.hugo.thankmas.savethekweebecs.listeners.ArenaListener
 import me.hugo.thankmas.savethekweebecs.listeners.JoinLeaveListener
 import me.hugo.thankmas.savethekweebecs.music.SoundManager

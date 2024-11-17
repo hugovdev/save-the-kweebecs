@@ -3,11 +3,13 @@ package me.hugo.thankmas.savethekweebecs.commands
 import dev.kezz.miniphrase.audience.sendTranslated
 import me.hugo.thankmas.lang.TranslatedComponent
 import me.hugo.thankmas.savethekweebecs.SaveTheKweebecs
+import me.hugo.thankmas.savethekweebecs.extension.arena
+import me.hugo.thankmas.savethekweebecs.extension.hasStarted
+import me.hugo.thankmas.savethekweebecs.extension.playerData
 import me.hugo.thankmas.savethekweebecs.game.arena.Arena
-import me.hugo.thankmas.savethekweebecs.game.map.MapRegistry
-import me.hugo.thankmas.savethekweebecs.game.map.ArenaMap
-import me.hugo.thankmas.savethekweebecs.extension.*
 import me.hugo.thankmas.savethekweebecs.game.arena.ArenaRegistry
+import me.hugo.thankmas.savethekweebecs.game.map.ArenaMap
+import me.hugo.thankmas.savethekweebecs.game.map.MapRegistry
 import me.hugo.thankmas.savethekweebecs.scoreboard.KweebecScoreboardManager
 import me.hugo.thankmas.savethekweebecs.team.TeamManager
 import net.kyori.adventure.text.Component

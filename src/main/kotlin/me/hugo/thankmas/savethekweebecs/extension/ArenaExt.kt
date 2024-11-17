@@ -2,20 +2,21 @@ package me.hugo.thankmas.savethekweebecs.extension
 
 import dev.kezz.miniphrase.MiniPhraseContext
 import dev.kezz.miniphrase.audience.sendTranslated
+import dev.kezz.miniphrase.tag.TagResolverBuilder
 import me.hugo.thankmas.player.showTitle
 import me.hugo.thankmas.savethekweebecs.game.arena.Arena
+import me.hugo.thankmas.savethekweebecs.game.arena.ArenaState
 import me.hugo.thankmas.savethekweebecs.game.map.MapRegistry
 import me.hugo.thankmas.savethekweebecs.music.SoundManager
 import me.hugo.thankmas.savethekweebecs.team.TeamManager
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder
-import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver
 import net.kyori.adventure.title.Title
 import org.bukkit.GameMode
 import org.bukkit.Sound
-import org.bukkit.entity.EntityType
 import org.bukkit.entity.Player
+import org.bukkit.entity.Projectile
 import org.bukkit.scoreboard.Criteria
 import org.bukkit.scoreboard.DisplaySlot
 import org.bukkit.scoreboard.RenderType
@@ -31,14 +32,14 @@ context(MiniPhraseContext)
 public fun Arena.start() {
     if (this.teamPlayers().size < arenaMap.minPlayers) {
         arenaTime = arenaMap.defaultCountdown
-        arenaState = me.hugo.thankmas.savethekweebecs.game.arena.ArenaState.WAITING
+        arenaState = ArenaState.WAITING
 
         announceTranslation("arena.notEnoughPeople")
         return
     }
 
     arenaTime = 300
-    arenaState = me.hugo.thankmas.savethekweebecs.game.arena.ArenaState.IN_GAME
+    arenaState = ArenaState.IN_GAME
 
     playersPerTeam.forEach { (team, players) ->
         var spawnPointIndex = 0
@@ -89,10 +90,10 @@ public fun Arena.start() {
 public fun Arena.end(winnerTeam: TeamManager.Team) {
     this.winnerTeam = winnerTeam
     this.arenaTime = 10
-    this.arenaState = me.hugo.thankmas.savethekweebecs.game.arena.ArenaState.FINISHING
+    this.arenaState = ArenaState.FINISHING
 
     // Remove any ender pearls to avoid any delayed teleports.
-    this.world?.entities?.filter { it.type == EntityType.ENDER_PEARL }?.forEach { it.remove() }
+    this.world.entities.filterIsInstance<Projectile>().forEach { it.remove() }
 
     playersPerTeam.forEach { (_, players) ->
         players.mapNotNull { it.player() }.forEach { teamPlayer ->
@@ -111,22 +112,20 @@ public fun Arena.end(winnerTeam: TeamManager.Team) {
                 )
             )
 
-            val playerData = teamPlayer.playerData() ?: return
-            playerData.resetSkin()
+            teamPlayer.playerData().resetSkin()
         }
     }
 
-    announceTranslation(
-        "arena.win.${winnerTeam.id}",
+    announceTranslation("arena.win.${winnerTeam.id}") {
         Placeholder.unparsed("team_icon", winnerTeam.chatIcon)
-    )
+    }
 }
 
 public fun Arena.reset() {
-    arenaState = me.hugo.thankmas.savethekweebecs.game.arena.ArenaState.RESETTING
+    arenaState = ArenaState.RESETTING
 
     arenaPlayers().mapNotNull { it.player() }.forEach { player ->
-        player.playerData()?.apply {
+        player.playerData().apply {
             currentArena = null
             currentTeam = null
         }
@@ -186,11 +185,10 @@ public fun Arena.announce(message: Component) {
 }
 
 context(MiniPhraseContext)
-public fun Arena.announceTranslation(key: String, vararg tagResolver: TagResolver) {
+public fun Arena.announceTranslation(key: String, tags: (TagResolverBuilder.() -> Unit)? = null) {
     arenaPlayers().forEach {
-        it.player()?.sendTranslated(key) {
-            tagResolver
-        }
+        val player = it.player() ?: return@forEach
+        player.sendTranslated(key, player.locale(), tags)
     }
 }
 
@@ -203,9 +201,9 @@ public fun Arena.playSound(sound: Sound) {
 }
 
 public fun Arena.hasStarted(): Boolean {
-    return this.arenaState != me.hugo.thankmas.savethekweebecs.game.arena.ArenaState.WAITING && this.arenaState != me.hugo.thankmas.savethekweebecs.game.arena.ArenaState.STARTING
+    return this.arenaState != ArenaState.WAITING && this.arenaState != ArenaState.STARTING
 }
 
 public fun Arena.isInGame(): Boolean {
-    return this.arenaState == me.hugo.thankmas.savethekweebecs.game.arena.ArenaState.IN_GAME
+    return this.arenaState == ArenaState.IN_GAME
 }

@@ -2,17 +2,17 @@ package me.hugo.thankmas.savethekweebecs.player
 
 import com.destroystokyo.paper.profile.ProfileProperty
 import dev.kezz.miniphrase.audience.sendTranslated
-import me.hugo.thankmas.savethekweebecs.SaveTheKweebecs
-import me.hugo.thankmas.savethekweebecs.game.arena.Arena
-import me.hugo.thankmas.savethekweebecs.extension.*
-import me.hugo.thankmas.savethekweebecs.scoreboard.KweebecScoreboardManager
-import me.hugo.thankmas.savethekweebecs.team.TeamManager
 import me.hugo.thankmas.items.*
 import me.hugo.thankmas.items.itemsets.ItemSetRegistry
 import me.hugo.thankmas.lang.TranslatedComponent
 import me.hugo.thankmas.player.rank.RankedPlayerData
 import me.hugo.thankmas.player.reset
 import me.hugo.thankmas.player.translate
+import me.hugo.thankmas.savethekweebecs.SaveTheKweebecs
+import me.hugo.thankmas.savethekweebecs.extension.*
+import me.hugo.thankmas.savethekweebecs.game.arena.Arena
+import me.hugo.thankmas.savethekweebecs.scoreboard.KweebecScoreboardManager
+import me.hugo.thankmas.savethekweebecs.team.TeamManager
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder
 import org.bukkit.GameMode
 import org.bukkit.entity.Player

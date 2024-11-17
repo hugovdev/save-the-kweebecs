@@ -8,7 +8,7 @@ import net.kyori.adventure.text.format.TextColor
 import net.kyori.adventure.text.minimessage.MiniMessage
 import org.bukkit.Material
 import org.koin.core.component.KoinComponent
-import java.util.Locale
+import java.util.*
 
 /**
  * The different states an arena can be in.
