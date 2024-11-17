@@ -23,7 +23,4 @@ dependencies {
 
     // Work on a paper specific library!
     implementation(project(":common-paper"))
-
-    implementation(libs.bundles.exposed.runtime)
-    api(libs.exposed.jbdc)
 }
