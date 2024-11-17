@@ -1,3 +1,5 @@
+import io.papermc.paperweight.userdev.ReobfArtifactConfiguration
+
 plugins {
     alias(libs.plugins.paperweight)
 }
@@ -5,7 +7,7 @@ plugins {
 group = "me.hugo.thankmas.savethekweebecs"
 version = "1.0-SNAPSHOT"
 
-paperweight.reobfArtifactConfiguration = io.papermc.paperweight.userdev.ReobfArtifactConfiguration.MOJANG_PRODUCTION
+paperweight.reobfArtifactConfiguration = ReobfArtifactConfiguration.MOJANG_PRODUCTION
 
 dependencies {
     paperweight.paperDevBundle(libs.versions.paper)
