@@ -9,7 +9,7 @@ import java.util.concurrent.ConcurrentMap
 import kotlin.time.Duration.Companion.seconds
 
 @Single
-class TextPopUpManager : BukkitRunnable() {
+public class TextPopUpManager : BukkitRunnable() {
 
     private val popUps: ConcurrentMap<TextPopUp, Long> = ConcurrentHashMap()
 
@@ -21,7 +21,7 @@ class TextPopUpManager : BukkitRunnable() {
         }
     }
 
-    fun createPopUp(
+    public fun createPopUp(
         viewers: List<Player>,
         textKey: String,
         location: Location,
@@ -31,7 +31,7 @@ class TextPopUpManager : BukkitRunnable() {
         popUps[TextPopUp(viewers, textKey, location, times, transformations)] = System.currentTimeMillis()
     }
 
-    fun createPopUp(
+    public fun createPopUp(
         viewer: Player,
         textKey: String,
         location: Location,

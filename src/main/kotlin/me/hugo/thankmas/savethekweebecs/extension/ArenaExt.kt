@@ -1,8 +1,10 @@
 package me.hugo.thankmas.savethekweebecs.extension
 
-import me.hugo.thankmas.savethekweebecs.arena.Arena
-import me.hugo.thankmas.savethekweebecs.arena.ArenaState
-import me.hugo.thankmas.savethekweebecs.arena.GameManager
+import dev.kezz.miniphrase.MiniPhraseContext
+import dev.kezz.miniphrase.audience.sendTranslated
+import me.hugo.thankmas.player.showTitle
+import me.hugo.thankmas.savethekweebecs.game.arena.Arena
+import me.hugo.thankmas.savethekweebecs.game.map.MapRegistry
 import me.hugo.thankmas.savethekweebecs.music.SoundManager
 import me.hugo.thankmas.savethekweebecs.team.TeamManager
 import net.kyori.adventure.text.Component
@@ -22,35 +24,35 @@ import org.koin.java.KoinJavaComponent
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
 
-private val gameManager: GameManager by KoinJavaComponent.inject(GameManager::class.java)
+private val mapRegistry: MapRegistry by KoinJavaComponent.inject(MapRegistry::class.java)
 private val soundManager: SoundManager by KoinJavaComponent.inject(SoundManager::class.java)
 
+context(MiniPhraseContext)
 public fun Arena.start() {
     if (this.teamPlayers().size < arenaMap.minPlayers) {
         arenaTime = arenaMap.defaultCountdown
-        arenaState = ArenaState.WAITING
+        arenaState = me.hugo.thankmas.savethekweebecs.game.arena.ArenaState.WAITING
 
         announceTranslation("arena.notEnoughPeople")
         return
     }
 
     arenaTime = 300
-    arenaState = ArenaState.IN_GAME
+    arenaState = me.hugo.thankmas.savethekweebecs.game.arena.ArenaState.IN_GAME
 
     playersPerTeam.forEach { (team, players) ->
         var spawnPointIndex = 0
-        val spawnPoints = arenaMap.teamSpawnPoints[team.id]
+        val spawnPoints = arenaMap.getSpawnpoints(team.id)
 
         players.mapNotNull { it.player() }.forEach { teamPlayer ->
             teamPlayer.reset(GameMode.SURVIVAL)
 
-            println("${spawnPoints?.size} spawns! [${team.id}] - $spawnPointIndex")
-            teamPlayer.teleport(spawnPoints!![spawnPointIndex].toLocation(world!!))
+            teamPlayer.teleport(spawnPoints[spawnPointIndex].toLocation(world))
 
-            teamPlayer.sendTranslated(
-                "arena.start.${team.id}",
+            teamPlayer.sendTranslated("arena.start.${team.id}") {
+
                 Placeholder.unparsed("team_icon", team.chatIcon)
-            )
+            }
 
             teamPlayer.playSound(Sound.ENTITY_ENDERMAN_TELEPORT)
             teamPlayer.showTitle(
@@ -64,7 +66,7 @@ public fun Arena.start() {
 
             team.giveItems(teamPlayer)
 
-            val playerData = teamPlayer.playerDataOrCreate()
+            val playerData = teamPlayer.playerData()
 
             val selectedVisual = playerData.selectedTeamVisuals[team] ?: team.defaultPlayerVisual
 
@@ -74,7 +76,12 @@ public fun Arena.start() {
             playerData.setSkin(selectedVisual.skin)
 
             soundManager.playTrack(SoundManager.IN_GAME_MUSIC, teamPlayer)
-            spawnPointIndex = if (spawnPointIndex == spawnPoints.size - 1) 0 else spawnPointIndex + 1
+
+            spawnPointIndex++
+
+            if (spawnPointIndex >= spawnPoints.size) {
+                spawnPointIndex = 0
+            }
         }
     }
 }
@@ -82,7 +89,7 @@ public fun Arena.start() {
 public fun Arena.end(winnerTeam: TeamManager.Team) {
     this.winnerTeam = winnerTeam
     this.arenaTime = 10
-    this.arenaState = ArenaState.FINISHING
+    this.arenaState = me.hugo.thankmas.savethekweebecs.game.arena.ArenaState.FINISHING
 
     // Remove any ender pearls to avoid any delayed teleports.
     this.world?.entities?.filter { it.type == EntityType.ENDER_PEARL }?.forEach { it.remove() }
@@ -116,14 +123,14 @@ public fun Arena.end(winnerTeam: TeamManager.Team) {
 }
 
 public fun Arena.reset() {
-    arenaState = ArenaState.RESETTING
+    arenaState = me.hugo.thankmas.savethekweebecs.game.arena.ArenaState.RESETTING
 
     arenaPlayers().mapNotNull { it.player() }.forEach { player ->
         player.playerData()?.apply {
             currentArena = null
             currentTeam = null
         }
-        gameManager.sendToHub(player)
+        mapRegistry.sendToHub(player)
     }
 
     createWorld(false)
@@ -132,7 +139,7 @@ public fun Arena.reset() {
 public fun Arena.loadTeamColors(player: Player) {
     val scoreboard = player.scoreboard
 
-    val playerTeam = player.playerDataOrCreate().currentTeam
+    val playerTeam = player.playerData().currentTeam
     val attackerTeam = arenaMap.attackerTeam
     val defenderTeam = arenaMap.defenderTeam
 
@@ -178,9 +185,12 @@ public fun Arena.announce(message: Component) {
     }
 }
 
+context(MiniPhraseContext)
 public fun Arena.announceTranslation(key: String, vararg tagResolver: TagResolver) {
     arenaPlayers().forEach {
-        it.player()?.sendTranslated(key, *tagResolver)
+        it.player()?.sendTranslated(key) {
+            tagResolver
+        }
     }
 }
 
@@ -193,9 +203,9 @@ public fun Arena.playSound(sound: Sound) {
 }
 
 public fun Arena.hasStarted(): Boolean {
-    return this.arenaState != ArenaState.WAITING && this.arenaState != ArenaState.STARTING
+    return this.arenaState != me.hugo.thankmas.savethekweebecs.game.arena.ArenaState.WAITING && this.arenaState != me.hugo.thankmas.savethekweebecs.game.arena.ArenaState.STARTING
 }
 
 public fun Arena.isInGame(): Boolean {
-    return this.arenaState == ArenaState.IN_GAME
+    return this.arenaState == me.hugo.thankmas.savethekweebecs.game.arena.ArenaState.IN_GAME
 }

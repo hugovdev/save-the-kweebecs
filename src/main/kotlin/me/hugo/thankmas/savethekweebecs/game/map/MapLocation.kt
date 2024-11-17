@@ -1,4 +1,4 @@
-package me.hugo.thankmas.savethekweebecs.arena.map
+package me.hugo.thankmas.savethekweebecs.game.map
 
 /**
  * Static and unique map locations.

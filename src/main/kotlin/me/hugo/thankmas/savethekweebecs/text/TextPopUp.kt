@@ -1,7 +1,8 @@
 package me.hugo.thankmas.savethekweebecs.text
 
+import me.hugo.thankmas.lang.TranslatedComponent
+import me.hugo.thankmas.player.translate
 import me.hugo.thankmas.savethekweebecs.SaveTheKweebecs
-import me.hugo.thankmas.savethekweebecs.extension.translate
 import org.bukkit.Color
 import org.bukkit.Location
 import org.bukkit.entity.Display
@@ -26,7 +27,7 @@ public class TextPopUp(
     public var location: Location,
     times: PopupTimes = PopupTimes(1.5.seconds, 0.5.seconds),
     transformations: PopupTransformation = PopupTransformation()
-) {
+) : TranslatedComponent {
 
     private val popupMilliseconds = times.popupTime.inWholeMilliseconds
     public val millisecondDuration: Long = times.popupDuration.inWholeMilliseconds

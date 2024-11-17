@@ -1,6 +1,12 @@
-package me.hugo.thankmas.savethekweebecs.arena.events
+package me.hugo.thankmas.savethekweebecs.game.events
 
-import me.hugo.thankmas.savethekweebecs.arena.Arena
+import dev.kezz.miniphrase.MiniPhraseContext
+import dev.kezz.miniphrase.audience.sendTranslated
+import me.hugo.thankmas.items.flags
+import me.hugo.thankmas.items.loreTranslatable
+import me.hugo.thankmas.items.nameTranslatable
+import me.hugo.thankmas.lang.TranslatedComponent
+import me.hugo.thankmas.savethekweebecs.game.arena.Arena
 import me.hugo.thankmas.savethekweebecs.extension.*
 import org.bukkit.Material
 import org.bukkit.inventory.ItemFlag
@@ -12,15 +18,17 @@ import org.bukkit.inventory.ItemStack
  *
  * [eventRun] runs when the event occurs.
  */
-public enum class ArenaEvent(public val eventRun: (arena: Arena) -> Unit) {
+public enum class ArenaEvent(
+    public val eventRun: MiniPhraseContext.(arena: Arena) -> Unit
+) {
 
     PATCH_UP({ arena ->
         arena.playersPerTeam[arena.arenaMap.defenderTeam]?.mapNotNull { it.player() }?.forEach { player ->
             player.inventory.addItem(
                 ItemStack(Material.BAMBOO_PLANKS, 2)
-                    .name(player.translate("arena.event.patch_up.blocksName"))
-                    .putLore(player.translateList("arena.event.patch_up.blocksLore"))
-                    .flag(ItemFlag.HIDE_ATTRIBUTES)
+                    .nameTranslatable("arena.event.patch_up.blocksName", player.locale())
+                    .loreTranslatable("arena.event.patch_up.blocksLore", player.locale())
+                    .flags(ItemFlag.HIDE_ATTRIBUTES)
             )
 
             player.sendTranslated("arena.event.patch_up.receive")

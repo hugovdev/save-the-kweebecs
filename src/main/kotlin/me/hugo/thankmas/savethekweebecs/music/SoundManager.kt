@@ -1,10 +1,11 @@
 package me.hugo.thankmas.savethekweebecs.music
 
+import me.hugo.thankmas.lang.TranslatedComponent
+import me.hugo.thankmas.player.translate
 import me.hugo.thankmas.savethekweebecs.extension.player
-import me.hugo.thankmas.savethekweebecs.extension.translate
 import net.kyori.adventure.key.Key
 import net.kyori.adventure.sound.Sound
-import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder.component
 import org.bukkit.entity.Player
 import org.bukkit.scheduler.BukkitRunnable
 import org.koin.core.annotation.Single
@@ -18,7 +19,7 @@ import kotlin.time.Duration.Companion.seconds
  * Takes care of the loopable sounds and music.
  */
 @Single
-public class SoundManager : BukkitRunnable() {
+public class SoundManager : BukkitRunnable(), TranslatedComponent {
 
     public companion object {
         /** The default track that plays when in a game of Save The Kweebecs. */
@@ -84,11 +85,10 @@ public class SoundManager : BukkitRunnable() {
         val track = musicPlayers[player.uniqueId]?.track ?: return
 
         player.sendActionBar(
-            player.translate(
-                "global.sound.music.now_playing",
-                Placeholder.component("track_name", player.translate("global.sound.${track.trackId}.name")),
-                Placeholder.component("track_author", player.translate("global.sound.${track.trackId}.author")),
-            )
+            player.translate("global.sound.music.now_playing") {
+                component("track_name", player.translate("global.sound.${track.trackId}.name"))
+                component("track_author", player.translate("global.sound.${track.trackId}.author"))
+            }
         )
     }
 

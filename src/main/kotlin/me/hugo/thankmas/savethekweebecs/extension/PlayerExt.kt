@@ -1,73 +1,25 @@
 package me.hugo.thankmas.savethekweebecs.extension
 
-import com.destroystokyo.paper.MaterialTags
 import me.hugo.thankmas.savethekweebecs.SaveTheKweebecs
-import me.hugo.thankmas.savethekweebecs.arena.Arena
-import me.hugo.thankmas.savethekweebecs.lang.LanguageManager
+import me.hugo.thankmas.savethekweebecs.game.arena.Arena
 import me.hugo.thankmas.savethekweebecs.player.SaveTheKweebecsPlayerData
-import me.hugo.thankmas.savethekweebecs.player.PlayerManager
 import me.hugo.thankmas.savethekweebecs.scoreboard.KweebecScoreboardManager
-import net.kyori.adventure.text.Component
-import net.kyori.adventure.text.minimessage.MiniMessage
-import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver
-import net.kyori.adventure.title.Title
-import net.minecraft.world.entity.EquipmentSlot
-import net.minecraft.world.entity.ai.attributes.AttributeModifier
-import net.minecraft.world.entity.ai.attributes.Attributes
-import net.minecraft.world.item.ArmorItem
-import net.minecraft.world.item.Item
 import org.bukkit.Bukkit
 import org.bukkit.GameMode
 import org.bukkit.Sound
 import org.bukkit.attribute.Attribute
-import org.bukkit.craftbukkit.inventory.CraftItemStack
 import org.bukkit.entity.Player
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
-import org.koin.java.KoinJavaComponent.inject
 import java.util.*
 
-private val playerManager: PlayerManager by inject(PlayerManager::class.java)
-private val languageManager: LanguageManager by inject(LanguageManager::class.java)
-private val scoreboardManager: me.hugo.thankmas.savethekweebecs.scoreboard.KweebecScoreboardManager by inject(me.hugo.thankmas.savethekweebecs.scoreboard.KweebecScoreboardManager::class.java)
-
-private val miniMessage: MiniMessage
-    get() = SaveTheKweebecs.instance().miniMessage
+private val playerManager
+    get() = SaveTheKweebecs.instance().playerManager
 
 public fun UUID.player(): Player? = Bukkit.getPlayer(this)
-
-public fun UUID.playerData(): SaveTheKweebecsPlayerData? = playerManager.getPlayerData(this)
-
-public fun Player.sendTranslated(key: String, vararg tagResolver: TagResolver) {
-    if (languageManager.isList(key)) {
-        getUnformattedList(key).forEach { sendMessage(toComponent(it, *tagResolver)) }
-    } else sendMessage(translate(key, *tagResolver))
-}
-
-public fun Player.getUnformattedLine(key: String): String {
-    return languageManager.getLangString(key, playerData()?.locale ?: LanguageManager.DEFAULT_LANGUAGE)
-}
-
-public fun Player.getUnformattedList(key: String): List<String> {
-    return languageManager.getLangStringList(key, playerData()?.locale ?: LanguageManager.DEFAULT_LANGUAGE)
-}
-
-public fun Player.toComponent(miniString: String, vararg tagResolver: TagResolver): Component {
-    return miniMessage.deserialize(miniString, *tagResolver)
-}
-
-public fun Player.arena(): Arena? = playerManager.getPlayerData(this)?.currentArena
-
-public fun Player.updateBoardTags(vararg tags: String) {
-    val arena = arena()
-
-    if (arena != null) {
-        scoreboardManager.loadedTemplates[arena.arenaState.name.lowercase()]?.updateLinesForTag(this, *tags)
-    } else scoreboardManager.loadedTemplates["lobby"]?.updateLinesForTag(this, *tags)
-}
-
-public fun Player.playerDataOrCreate(): SaveTheKweebecsPlayerData = playerManager.getOrCreatePlayerData(this)
-public fun Player.playerData(): SaveTheKweebecsPlayerData? = playerManager.getPlayerData(this)
+public fun UUID.playerData(): SaveTheKweebecsPlayerData = playerManager.getPlayerData(this)
+public fun Player.arena(): Arena? = playerManager.getPlayerData(this.uniqueId).currentArena
+public fun Player.playerData(): SaveTheKweebecsPlayerData = playerManager.getPlayerData(this.uniqueId)
 
 public fun Inventory.firstIf(predicate: (ItemStack) -> Boolean): Pair<Int, ItemStack>? {
     for (slot in 0 until size) {
@@ -78,8 +30,30 @@ public fun Inventory.firstIf(predicate: (ItemStack) -> Boolean): Pair<Int, ItemS
     return null
 }
 
+/** @returns every online player with an active scoreboard. */
+public fun playersWithBoard(): List<Player> {
+    return Bukkit.getOnlinePlayers()
+        .filter { SaveTheKweebecs.instance().playerManager.getPlayerDataOrNull(it.uniqueId)?.getBoardOrNull() != null }
+}
+
+/** Updates this player's board lines that contains [tags]. */
+public fun Player.updateBoardTags(vararg tags: String) {
+    val scoreboardManager: KweebecScoreboardManager = SaveTheKweebecs.instance().scoreboardManager
+    val playerData = SaveTheKweebecs.instance().playerManager.getPlayerData(uniqueId)
+
+    playerData.getBoardOrNull() ?: return
+
+    scoreboardManager.getTemplate(playerData.lastBoardId ?: "lobby").updateLinesForTag(this, *tags)
+}
+
+/** Updates this player's board lines that contains [tags]. */
+public fun updateBoardTags(vararg tags: String) {
+    playersWithBoard().forEach { it.updateBoardTags(*tags) }
+}
+
 public fun Player.intelligentGive(item: ItemStack) {
-    val nmsItem: Item = CraftItemStack.asNMSCopy(item).item
+    inventory.addItem(item)
+    /*val nmsItem: Item = CraftItemStack.asNMSCopy(item).item
 
     val slot: Int = if (MaterialTags.HELMETS.isTagged(item)) {
         39
@@ -148,22 +122,7 @@ public fun Player.intelligentGive(item: ItemStack) {
     else {
         playSound(Sound.ITEM_ARMOR_EQUIP_CHAIN)
         inventory.setItem(finalSlot, item)
-    }
-}
-
-public fun Player.showTitle(key: String, times: Title.Times, vararg tagResolver: TagResolver) {
-    if (languageManager.isList(key)) {
-        val titles = getUnformattedList(key)
-
-        val title = titles.first()
-        val subtitle = titles.getOrNull(1)
-
-        showTitle(
-            Title.title(
-                translate(title, *tagResolver),
-                subtitle?.let { translate(it, *tagResolver) } ?: Component.empty(),
-                times))
-    } else showTitle(Title.title(translate(getUnformattedLine(key), *tagResolver), Component.empty(), times))
+    }*/
 }
 
 public fun Player.playSound(sound: Sound): Unit = playSound(location, sound, 1.0f, 1.0f)

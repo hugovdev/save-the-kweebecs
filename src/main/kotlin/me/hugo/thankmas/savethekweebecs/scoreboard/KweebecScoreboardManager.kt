@@ -1,9 +1,9 @@
 package me.hugo.thankmas.savethekweebecs.scoreboard
 
 import me.hugo.thankmas.savethekweebecs.SaveTheKweebecs
-import me.hugo.thankmas.savethekweebecs.arena.ArenaState
+import me.hugo.thankmas.savethekweebecs.game.arena.ArenaState
 import me.hugo.thankmas.savethekweebecs.extension.arena
-import me.hugo.thankmas.savethekweebecs.extension.playerDataOrCreate
+import me.hugo.thankmas.savethekweebecs.extension.playerData
 import me.hugo.thankmas.savethekweebecs.player.SaveTheKweebecsPlayerData
 import me.hugo.thankmas.player.translate
 import me.hugo.thankmas.scoreboard.ScoreboardTemplate
@@ -64,12 +64,12 @@ public class KweebecScoreboardManager(private val instance: SaveTheKweebecs) :
         registerTag("coins") { player, _ ->
             Tag.selfClosingInserting {
                 Component.text(
-                    player.playerDataOrCreate().getCoins().toString()
+                    player.playerData().getCoins().toString()
                 )
             }
         }
 
-        registerTag("kills") { player, _ -> Tag.selfClosingInserting { Component.text(player.playerDataOrCreate().kills) } }
+        registerTag("kills") { player, _ -> Tag.selfClosingInserting { Component.text(player.playerData().kills) } }
 
         registerTag("time") { player, _ ->
             val totalSeconds = player.arena()?.arenaTime ?: 0

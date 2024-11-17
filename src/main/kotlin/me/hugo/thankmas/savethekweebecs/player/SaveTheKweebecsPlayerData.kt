@@ -3,7 +3,7 @@ package me.hugo.thankmas.savethekweebecs.player
 import com.destroystokyo.paper.profile.ProfileProperty
 import dev.kezz.miniphrase.audience.sendTranslated
 import me.hugo.thankmas.savethekweebecs.SaveTheKweebecs
-import me.hugo.thankmas.savethekweebecs.arena.Arena
+import me.hugo.thankmas.savethekweebecs.game.arena.Arena
 import me.hugo.thankmas.savethekweebecs.extension.*
 import me.hugo.thankmas.savethekweebecs.scoreboard.KweebecScoreboardManager
 import me.hugo.thankmas.savethekweebecs.team.TeamManager
@@ -12,6 +12,7 @@ import me.hugo.thankmas.items.itemsets.ItemSetRegistry
 import me.hugo.thankmas.lang.TranslatedComponent
 import me.hugo.thankmas.player.rank.RankedPlayerData
 import me.hugo.thankmas.player.reset
+import me.hugo.thankmas.player.translate
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder
 import org.bukkit.GameMode
 import org.bukkit.entity.Player
@@ -25,8 +26,7 @@ import java.util.*
 public class SaveTheKweebecsPlayerData(playerUUID: UUID, instance: SaveTheKweebecs) :
     RankedPlayerData<SaveTheKweebecsPlayerData>(playerUUID, instance.playerManager), TranslatedComponent {
 
-    private val scoreboardManager: me.hugo.thankmas.savethekweebecs.scoreboard.KweebecScoreboardManager by inject()
-    private val itemManager: ItemSetRegistry by inject()
+    private val scoreboardManager: KweebecScoreboardManager by inject()
     private val teamManager: TeamManager by inject()
 
     public var currentArena: Arena? = null
@@ -68,11 +68,10 @@ public class SaveTheKweebecsPlayerData(playerUUID: UUID, instance: SaveTheKweebe
 
         playerUUID.player()?.let {
             it.updateBoardTags("coins")
-            it.sendTranslated(
-                if (isNegative) "arena.gold.minus" else "arena.gold.plus",
-                Placeholder.unparsed("amount", displayedAmount.toString()),
-                Placeholder.component("reason", playerUUID.translate("arena.gold.reason.$reason"))
-            )
+            it.sendTranslated(if (isNegative) "arena.gold.minus" else "arena.gold.plus") {
+                Placeholder.unparsed("amount", displayedAmount.toString())
+                Placeholder.component("reason", onlinePlayer.translate("arena.gold.reason.$reason"))
+            }
         }
     }
 
@@ -98,7 +97,7 @@ public class SaveTheKweebecsPlayerData(playerUUID: UUID, instance: SaveTheKweebe
         player.isPersistent = false
         player.reset(GameMode.ADVENTURE)
 
-        val scoreboardManager: me.hugo.thankmas.savethekweebecs.scoreboard.KweebecScoreboardManager by inject()
+        val scoreboardManager: KweebecScoreboardManager by inject()
         scoreboardManager.getTemplate("lobby").printBoard(player)
 
         player.sendTranslated("welcome")

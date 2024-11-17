@@ -1,14 +1,14 @@
-package me.hugo.thankmas.savethekweebecs.arena
+package me.hugo.thankmas.savethekweebecs.game.arena
 
+import dev.kezz.miniphrase.MiniPhraseContext
 import me.hugo.thankmas.savethekweebecs.SaveTheKweebecs
-import me.hugo.thankmas.savethekweebecs.lang.LanguageManager
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextColor
 import net.kyori.adventure.text.minimessage.MiniMessage
 import org.bukkit.Material
 import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
+import java.util.Locale
 
 /**
  * The different states an arena can be in.
@@ -30,13 +30,13 @@ public enum class ArenaState(public val color: TextColor, public val material: M
     /** Game has finished and the map is being reset. */
     RESETTING(NamedTextColor.AQUA, Material.BLACK_CONCRETE);
 
-    private val languageManager: LanguageManager by inject()
     private val miniMessage: MiniMessage
         get() = SaveTheKweebecs.instance().translations.translations.miniMessage
 
     /** Returns a friendly name for this arena state fetched from the language file. */
-    public fun getFriendlyName(locale: String): Component {
-        return miniMessage.deserialize(languageManager.getLangString("arena.state.${this.name.lowercase()}", locale))
+    context(MiniPhraseContext)
+    public fun getFriendlyName(locale: Locale): Component {
+        return miniPhrase.translate("arena.state.${this.name.lowercase()}", locale)
     }
 
 }

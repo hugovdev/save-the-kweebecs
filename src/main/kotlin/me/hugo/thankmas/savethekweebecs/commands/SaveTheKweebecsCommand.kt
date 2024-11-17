@@ -1,41 +1,38 @@
 package me.hugo.thankmas.savethekweebecs.commands
 
+import dev.kezz.miniphrase.audience.sendTranslated
+import me.hugo.thankmas.lang.TranslatedComponent
 import me.hugo.thankmas.savethekweebecs.SaveTheKweebecs
-import me.hugo.thankmas.savethekweebecs.arena.Arena
-import me.hugo.thankmas.savethekweebecs.arena.GameManager
-import me.hugo.thankmas.savethekweebecs.arena.map.ArenaMap
+import me.hugo.thankmas.savethekweebecs.game.arena.Arena
+import me.hugo.thankmas.savethekweebecs.game.map.MapRegistry
+import me.hugo.thankmas.savethekweebecs.game.map.ArenaMap
 import me.hugo.thankmas.savethekweebecs.extension.*
-import me.hugo.thankmas.savethekweebecs.lang.LanguageManager
+import me.hugo.thankmas.savethekweebecs.game.arena.ArenaRegistry
 import me.hugo.thankmas.savethekweebecs.scoreboard.KweebecScoreboardManager
 import me.hugo.thankmas.savethekweebecs.team.TeamManager
-import me.hugo.thankmas.savethekweebecs.util.menus.PaginatedMenu
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder
-import net.kyori.adventure.title.Title
-import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
-import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import revxrsal.commands.annotation.*
+import revxrsal.commands.annotation.Command
+import revxrsal.commands.annotation.DefaultFor
+import revxrsal.commands.annotation.Description
+import revxrsal.commands.annotation.Subcommand
 import revxrsal.commands.bukkit.annotation.CommandPermission
 import java.util.*
-import kotlin.time.Duration.Companion.seconds
-import kotlin.time.toJavaDuration
 
 @Command("savethekweebecs", "stk")
 @Description("Main SaveTheKweebecs command.")
-public class SaveTheKweebecsCommand : KoinComponent {
-
-    private val snakeRegex = "_[a-zA-Z]".toRegex()
-    private val configuringMap: MutableMap<UUID, ArenaMap> = mutableMapOf()
+public class SaveTheKweebecsCommand : TranslatedComponent {
 
     private val main = SaveTheKweebecs.instance()
 
-    private val gameManager: GameManager by inject()
-    private val languageManager: LanguageManager by inject()
-    private val scoreboardManager: me.hugo.thankmas.savethekweebecs.scoreboard.KweebecScoreboardManager by inject()
+    private val mapRegistry: MapRegistry by inject()
+    private val arenaRegistry: ArenaRegistry by inject()
+
+    private val scoreboardManager: KweebecScoreboardManager by inject()
     private val teamManager: TeamManager by inject()
 
     @DefaultFor("savethekweebecs", "stk", "savethekweebecs help", "stk help")
@@ -48,14 +45,14 @@ public class SaveTheKweebecsCommand : KoinComponent {
     @Description("Auto-joins a SaveTheKweebecs map!")
     private fun autoJoin(sender: Player) {
         // Picks the fullest available arena and joins!
-        gameManager.arenas.values.filter { it.teamPlayers().size < it.arenaMap.maxPlayers }
+        arenaRegistry.getValues().filter { it.teamPlayers().size < it.arenaMap.maxPlayers }
             .maxByOrNull { it.teamPlayers().size }?.joinArena(sender)
     }
 
     @Subcommand("arenas")
     @Description("Opens an arena selector menu!")
     private fun openArenasMenu(sender: Player) {
-        gameManager.openArenasMenu(sender)
+        // mapRegistry.openArenasMenu(sender)
     }
 
     @Subcommand("transformations")
@@ -64,7 +61,7 @@ public class SaveTheKweebecsCommand : KoinComponent {
         val arena = sender.arena()
         if (arena?.hasStarted() == true) return
 
-        sender.playerData()?.transformationsMenu?.open(sender)
+        //sender.playerData()?.transformationsMenu?.open(sender)
     }
 
     @Subcommand("list")
@@ -72,29 +69,27 @@ public class SaveTheKweebecsCommand : KoinComponent {
     private fun listArenas(sender: Player) {
         sender.sendTranslated("arena.list.header")
 
-        gameManager.arenas.values.forEach {
+        /*arenaRegistry.getValues().forEach {
             sender.sendMessage(
                 sender.toComponent(
                     sender.getUnformattedLine("arena.list.member").replace("<arena_uuid>", it.arenaUUID.toString()),
                     Placeholder.unparsed("display_name", it.displayName),
-                    Placeholder.component(
-                        "arena_state",
-                        it.arenaState.getFriendlyName(sender.playerData()?.locale ?: LanguageManager.DEFAULT_LANGUAGE)
-                    ),
+                    Placeholder.component("arena_state", it.arenaState.getFriendlyName(sender.locale())),
                     Placeholder.unparsed("team_size", (it.arenaMap.maxPlayers / 2).toString()),
                     Placeholder.unparsed("map_name", it.arenaMap.mapName),
                     Placeholder.unparsed("current_players", it.teamPlayers().size.toString()),
                     Placeholder.unparsed("max_players", it.arenaMap.maxPlayers.toString())
                 )
             )
-        }
+        }*/
     }
 
     @Subcommand("join")
     @Description("Joins an arena.")
     private fun listArenas(sender: Player, uuid: String) {
         try {
-            val arena = gameManager.arenas[UUID.fromString(uuid)]
+            val arena = arenaRegistry.getOrNull(UUID.fromString(uuid))
+
             if (arena == null) {
                 sender.sendTranslated("arena.join.noExist")
                 return
@@ -109,7 +104,7 @@ public class SaveTheKweebecsCommand : KoinComponent {
     @Subcommand("leave")
     @Description("Leave the arena you're in!")
     private fun leaveArena(sender: Player) {
-        val currentArena = sender.playerDataOrCreate().currentArena
+        val currentArena = sender.playerData().currentArena
 
         if (currentArena == null) {
             sender.sendTranslated("arena.leave.notInArena")
@@ -122,19 +117,19 @@ public class SaveTheKweebecsCommand : KoinComponent {
     @Subcommand("shop")
     @Description("Opens the shop for the player!")
     private fun openShop(sender: Player) {
-        val currentArena = sender.playerDataOrCreate().currentArena
+        val currentArena = sender.playerData().currentArena
 
         if (currentArena == null) {
             sender.sendTranslated("arena.leave.notInArena")
             return
         }
 
-        val playerData = sender.playerData() ?: return
+        val playerData = sender.playerData()
         val team = playerData.currentTeam ?: return
 
         if (team.shopItems.isEmpty()) return
 
-        PaginatedMenu(
+        /*PaginatedMenu(
             9 * 4, "menu.shop.title", PaginatedMenu.PageFormat.TWO_ROWS_TRIMMED.format,
             ItemStack(Material.NETHER_STAR)
                 .name("menu.shop.icon.name", playerData.locale)
@@ -144,7 +139,7 @@ public class SaveTheKweebecsCommand : KoinComponent {
             true
         ).also { menu ->
             team.shopItems.sortedBy { it.cost }.forEach { menu.addItem(it.getIcon(sender)) }
-        }.open(sender)
+        }.open(sender)*/
     }
 
     @DefaultFor("savethekweebecs admin", "stk admin")
@@ -167,7 +162,7 @@ public class SaveTheKweebecsCommand : KoinComponent {
     private fun createArena(sender: Player, map: ArenaMap, displayName: String) {
         val arena = Arena(map, displayName)
 
-        gameManager.registerArena(arena)
+        arenaRegistry.register(arena.arenaUUID, arena)
 
         sender.sendMessage(
             Component.text(
@@ -191,7 +186,9 @@ public class SaveTheKweebecsCommand : KoinComponent {
         val items = team.kitItems
 
         if (items.isEmpty()) {
-            sender.sendTranslated("system.kit.noKit", Placeholder.unparsed("team", team.id))
+            sender.sendTranslated("system.kit.noKit") {
+                Placeholder.unparsed("team", team.id)
+            }
             return
         }
 
@@ -238,16 +235,17 @@ public class SaveTheKweebecsCommand : KoinComponent {
         val items = team.shopItems
 
         if (items.isEmpty()) {
-            sender.sendTranslated("system.shop.noShop", Placeholder.unparsed("team", team.id))
+            sender.sendTranslated("system.shop.noShop") {
+                Placeholder.unparsed("team", team.id)
+            }
             return
         }
 
         team.shopItems.forEach {
-            sender.sendTranslated(
-                "system.shop.listedItem",
-                Placeholder.unparsed("key", it.key),
+            sender.sendTranslated("system.shop.listedItem") {
+                Placeholder.unparsed("key", it.key)
                 Placeholder.unparsed("cost", it.cost.toString())
-            )
+            }
         }
     }
 
@@ -258,7 +256,9 @@ public class SaveTheKweebecsCommand : KoinComponent {
         val items = team.shopItems
 
         if (items.any { it.key == key }) {
-            sender.sendTranslated("system.shop.duplicateKey", Placeholder.unparsed("key", team.id))
+            sender.sendTranslated("system.shop.duplicateKey") {
+                Placeholder.unparsed("key", team.id)
+            }
             return
         }
 
@@ -278,11 +278,10 @@ public class SaveTheKweebecsCommand : KoinComponent {
 
         main.saveConfig()
 
-        sender.sendTranslated(
-            "system.shop.added",
-            Placeholder.unparsed("key", key),
+        sender.sendTranslated("system.shop.added") {
+            Placeholder.unparsed("key", key)
             Placeholder.unparsed("team", team.id)
-        )
+        }
     }
 
     @Subcommand("admin shop remove")
@@ -303,11 +302,10 @@ public class SaveTheKweebecsCommand : KoinComponent {
         main.config.set(configPath, null)
         main.saveConfig()
 
-        sender.sendTranslated(
-            "system.shop.removed",
-            Placeholder.unparsed("key", key),
+        sender.sendTranslated("system.shop.removed") {
+            Placeholder.unparsed("key", key)
             Placeholder.unparsed("team", team.id)
-        )
+        }
     }
 
     @Subcommand("admin shop get")
@@ -323,86 +321,5 @@ public class SaveTheKweebecsCommand : KoinComponent {
         }
 
         sender.inventory.addItem(item.item)
-    }
-
-    @DefaultFor("savethekweebecs admin lang", "stk admin lang")
-    @Description("Help for the language system.")
-    @CommandPermission("savethekweebecs.admin")
-    private fun helpLang(sender: Player) {
-        sender.sendTranslated("system.lang.help")
-    }
-
-    @Subcommand("admin lang reload")
-    @Description("Reloads the language system.")
-    @CommandPermission("savethekweebecs.admin")
-    private fun reloadLang(sender: Player) {
-        languageManager.reloadLanguages()
-        scoreboardManager.loadTemplates()
-        sender.sendTranslated("system.lang.reloaded")
-    }
-
-    @Subcommand("admin lang testMessage")
-    @Description("Test messages in the language system.")
-    @CommandPermission("savethekweebecs.admin")
-    @AutoComplete("@locale")
-    private fun testMessage(
-        sender: Player,
-        locale: String,
-        messageKey: String
-    ) {
-        if (languageManager.isList(messageKey))
-            languageManager.getLangStringList(messageKey, locale).map { sender.toComponent(it) }
-                .forEach { sender.sendMessage(it) }
-        else sender.sendMessage(sender.toComponent(languageManager.getLangString(messageKey, locale)))
-    }
-
-    @Subcommand("admin lang testTitle")
-    @Description("Test titles in the language system.")
-    @CommandPermission("savethekweebecs.admin")
-    @AutoComplete("@locale")
-    private fun testTitle(
-        sender: Player,
-        locale: String,
-        messageKey: String,
-        @Default("0.5") fadeIn: Double,
-        @Default("1.5") stay: Double,
-        @Default("0.5") fadeOut: Double
-    ) {
-        sender.showTitle(
-            messageKey,
-            Title.Times.times(
-                fadeIn.seconds.toJavaDuration(),
-                stay.seconds.toJavaDuration(),
-                fadeOut.seconds.toJavaDuration()
-            )
-        )
-    }
-
-    @Subcommand("admin lang setlocale")
-    @Description("Reloads the language system.")
-    @CommandPermission("savethekweebecs.admin")
-    @AutoComplete("@locale")
-    private fun reloadLang(sender: Player, locale: String) {
-        sender.playerData()?.locale = locale
-    }
-
-    private fun Player.getConfiguringMap(): ArenaMap? {
-        val map = configuringMap[this.uniqueId]
-
-        if (map == null) this.sendMessage(
-            Component.text(
-                "Create a map first using /stk admin create <mapName>",
-                NamedTextColor.RED
-            )
-        )
-
-        return map
-    }
-
-    private fun String.snakeToLowerCamelCase(): String {
-        return snakeRegex.replace(this) {
-            it.value.replace("_", "")
-                .uppercase()
-        }
     }
 }

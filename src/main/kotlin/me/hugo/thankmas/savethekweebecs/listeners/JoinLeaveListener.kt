@@ -1,16 +1,14 @@
 package me.hugo.thankmas.savethekweebecs.listeners
 
 import me.hugo.thankmas.savethekweebecs.SaveTheKweebecs
-import me.hugo.thankmas.savethekweebecs.arena.GameManager
+import me.hugo.thankmas.savethekweebecs.game.map.MapRegistry
 import me.hugo.thankmas.savethekweebecs.extension.arena
 import me.hugo.thankmas.savethekweebecs.extension.playerData
 import me.hugo.thankmas.savethekweebecs.extension.updateBoardTags
 import me.hugo.thankmas.savethekweebecs.music.SoundManager
-import me.hugo.thankmas.savethekweebecs.player.PlayerManager
 import org.bukkit.Bukkit
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
-import org.bukkit.event.player.AsyncPlayerPreLoginEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerLocaleChangeEvent
 import org.bukkit.event.player.PlayerQuitEvent
@@ -18,21 +16,16 @@ import org.koin.core.annotation.Single
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
-
 @Single
 public class JoinLeaveListener : KoinComponent, Listener {
 
-    private val playerManager: PlayerManager by inject()
-    private val gameManager: GameManager by inject()
+    private val playerManager
+        get() = SaveTheKweebecs.instance().playerManager
+
+    private val mapRegistry: MapRegistry by inject()
     private val soundManager: SoundManager by inject()
 
     public var onlinePlayers: Int = Bukkit.getOnlinePlayers().size
-
-    @EventHandler
-    public fun onPreLogin(event: AsyncPlayerPreLoginEvent) {
-        // Create player data and save their skin!
-        playerManager.getOrCreatePlayerData(event.uniqueId)
-    }
 
     @EventHandler
     public fun onPlayerJoin(event: PlayerJoinEvent) {
@@ -42,8 +35,7 @@ public class JoinLeaveListener : KoinComponent, Listener {
         // Don't save any player data on worlds, etc.
         player.isPersistent = false
 
-        player.playerData()?.initialize()
-        gameManager.sendToHub(player)
+        mapRegistry.sendToHub(player)
         onlinePlayers++
 
         val instance = SaveTheKweebecs.instance()
@@ -60,11 +52,6 @@ public class JoinLeaveListener : KoinComponent, Listener {
             it.hidePlayer(instance, player)
             player.hidePlayer(instance, it)
         }
-    }
-
-    @EventHandler
-    public fun onLocaleChange(event: PlayerLocaleChangeEvent) {
-        event.player.playerData()?.locale = event.locale().language
     }
 
     @EventHandler

@@ -3,11 +3,15 @@ package me.hugo.thankmas.savethekweebecs.listeners
 import com.destroystokyo.paper.MaterialSetTag
 import com.destroystokyo.paper.MaterialTags
 import com.destroystokyo.paper.event.player.PlayerPickupExperienceEvent
+import dev.kezz.miniphrase.audience.sendTranslated
 import io.papermc.paper.event.player.AsyncChatEvent
+import me.hugo.thankmas.lang.TranslatedComponent
+import me.hugo.thankmas.player.showTitle
+import me.hugo.thankmas.player.translate
 import me.hugo.thankmas.savethekweebecs.SaveTheKweebecs
-import me.hugo.thankmas.savethekweebecs.arena.Arena
-import me.hugo.thankmas.savethekweebecs.arena.GameManager
+import me.hugo.thankmas.savethekweebecs.game.arena.Arena
 import me.hugo.thankmas.savethekweebecs.extension.*
+import me.hugo.thankmas.savethekweebecs.game.arena.ArenaRegistry
 import me.hugo.thankmas.savethekweebecs.music.SoundManager
 import me.hugo.thankmas.savethekweebecs.player.SaveTheKweebecsPlayerData
 import net.citizensnpcs.api.event.NPCRightClickEvent
@@ -33,16 +37,15 @@ import org.bukkit.event.player.PlayerChangedWorldEvent
 import org.bukkit.event.player.PlayerDropItemEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.weather.WeatherChangeEvent
-import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import java.util.*
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
 
 
-public class ArenaListener : KoinComponent, Listener {
+public class ArenaListener : TranslatedComponent, Listener {
 
-    private val gameManager: GameManager by inject()
+    private val arenaRegistry: ArenaRegistry by inject()
     private val soundManager: SoundManager by inject()
 
     private companion object {
@@ -63,7 +66,7 @@ public class ArenaListener : KoinComponent, Listener {
     @EventHandler
     public fun onFoodLevelChange(event: FoodLevelChangeEvent) {
         val player = event.entity as Player
-        val playerData = player.playerDataOrCreate()
+        val playerData = player.playerData()
 
         if (playerData.currentArena?.isInGame() == true) return
 
@@ -75,7 +78,7 @@ public class ArenaListener : KoinComponent, Listener {
         val player = event.entity
         if (player !is Player) return
 
-        val playerData = player.playerDataOrCreate()
+        val playerData = player.playerData()
         val arena: Arena? = player.arena()
 
         val isDying = player.health - event.finalDamage <= 0
@@ -129,7 +132,7 @@ public class ArenaListener : KoinComponent, Listener {
                         Placeholder.unparsed("player", player.name)
                     )
                 } else {
-                    val attackerData = attacker.playerDataOrCreate()
+                    val attackerData = attacker.playerData()
 
                     attackerData.kills++
 
@@ -172,13 +175,13 @@ public class ArenaListener : KoinComponent, Listener {
         if (event.clicker.gameMode == GameMode.SPECTATOR) return
 
         if (npc.data().has("arena")) {
-            val arena = gameManager.arenas[UUID.fromString(npc.data().get("arena"))] ?: return
+            val arena = arenaRegistry.getOrNull(UUID.fromString(npc.data().get("arena"))) ?: return
 
             if (!arena.isInGame()) return
 
             val player = event.clicker
             val attackerTeam = arena.arenaMap.attackerTeam
-            if (player.playerDataOrCreate().currentTeam != attackerTeam) return
+            if (player.playerData().currentTeam != attackerTeam) return
 
             npc.despawn()
             arena.remainingNPCs[npc] = true
@@ -215,7 +218,7 @@ public class ArenaListener : KoinComponent, Listener {
 
         if (player.gameMode == GameMode.CREATIVE) return
 
-        val playerData = player.playerDataOrCreate()
+        val playerData = player.playerData()
 
         val currentArena = playerData.currentArena
 
@@ -232,7 +235,7 @@ public class ArenaListener : KoinComponent, Listener {
 
         if (player.gameMode == GameMode.CREATIVE) return
 
-        val playerData = player.playerDataOrCreate()
+        val playerData = player.playerData()
 
         val currentArena = playerData.currentArena
 
@@ -276,19 +279,19 @@ public class ArenaListener : KoinComponent, Listener {
 
             event.renderer { source, _, message, viewer ->
                 if (viewer is Player) {
-                    viewer.translate(
-                        "global.chat.lobby", Placeholder.component(
+                    viewer.translate("global.chat.lobby") {
+                        Placeholder.component(
                             "player_name", Component.text(
                                 if (isAdmin) "[Admin] ${source.name}" else source.name,
                                 if (isAdmin) NamedTextColor.RED else NamedTextColor.GRAY
                             )
-                        ),
+                        )
                         Placeholder.component(
                             "message",
                             event.message()
                                 .color(if (isAdmin) NamedTextColor.WHITE else NamedTextColor.GRAY)
                         )
-                    )
+                    }
                 } else Component.text((if (arena == null) "[LOBBY]" else "[${arena.displayName}]") + " ${source.name} -> ")
                     .append(message)
             }
@@ -309,12 +312,11 @@ public class ArenaListener : KoinComponent, Listener {
 
         event.renderer { source, _, message, viewer ->
             if (viewer is Player) {
-                viewer.translate(
-                    "global.chat.in_game",
-                    Placeholder.unparsed("team_icon", team.chatIcon),
-                    Placeholder.component("player_name", Component.text(player.name, NamedTextColor.GRAY)),
+                viewer.translate("global.chat.in_game") {
+                    Placeholder.unparsed("team_icon", team.chatIcon)
+                    Placeholder.component("player_name", Component.text(player.name, NamedTextColor.GRAY))
                     Placeholder.component("message", event.message().color(NamedTextColor.WHITE))
-                )
+                }
             } else Component.text("[${arena.displayName}] ${source.name} -> ").append(message)
         }
     }

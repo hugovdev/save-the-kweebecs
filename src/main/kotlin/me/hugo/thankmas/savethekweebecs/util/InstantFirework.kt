@@ -7,11 +7,11 @@ import org.bukkit.entity.Firework
 /**
  * Firework that instantly spawns.
  */
-class InstantFirework(effect: FireworkEffect, location: Location) {
+public class InstantFirework(effect: FireworkEffect, location: Location) {
     init {
-        val f = location.getWorld().spawn(location, Firework::class.java)
-        val fm = f.fireworkMeta
-        fm.addEffect(effect)
-        f.fireworkMeta = fm
+        val firework = location.world.spawn(location, Firework::class.java)
+        val meta = firework.fireworkMeta
+        meta.addEffect(effect)
+        firework.fireworkMeta = meta
     }
 }
