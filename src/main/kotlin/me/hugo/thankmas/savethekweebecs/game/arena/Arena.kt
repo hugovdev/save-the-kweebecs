@@ -1,6 +1,6 @@
 package me.hugo.thankmas.savethekweebecs.game.arena
 
-import com.infernalsuite.aswm.api.SlimePlugin
+import com.infernalsuite.aswm.api.AdvancedSlimePaperAPI
 import com.infernalsuite.aswm.api.world.SlimeWorld
 import dev.kezz.miniphrase.MiniPhraseContext
 import dev.kezz.miniphrase.audience.sendTranslated
@@ -42,7 +42,6 @@ import java.util.concurrent.ConcurrentMap
 public class Arena(public val arenaMap: ArenaMap, public val displayName: String) : TranslatedComponent {
 
     private val main = SaveTheKweebecs.instance()
-    private val slimePlugin: SlimePlugin = main.slimePlugin
 
     private val mapRegistry: MapRegistry by inject()
     private val scoreboardManager: me.hugo.thankmas.savethekweebecs.scoreboard.KweebecScoreboardManager by inject()
@@ -200,7 +199,7 @@ public class Arena(public val arenaMap: ArenaMap, public val displayName: String
 
         if (!firstTime) Bukkit.unloadWorld(world, false)
 
-        slimePlugin.loadWorld(slimeWorld)
+        AdvancedSlimePaperAPI.instance().loadWorld(slimeWorld, false)
 
         val newWorld = Bukkit.getWorld(arenaUUID.toString()) ?: return
 
@@ -210,6 +209,7 @@ public class Arena(public val arenaMap: ArenaMap, public val displayName: String
         newWorld.setGameRule(GameRule.DO_WEATHER_CYCLE, false)
         newWorld.setGameRule(GameRule.DO_MOB_SPAWNING, false)
         newWorld.setGameRule(GameRule.DO_FIRE_TICK, false)
+        newWorld.setGameRule(GameRule.RANDOM_TICK_SPEED, 0)
 
         world = newWorld
 

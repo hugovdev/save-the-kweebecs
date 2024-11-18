@@ -2,7 +2,6 @@ package me.hugo.thankmas.savethekweebecs.game.map
 
 import me.hugo.thankmas.config.ConfigurationProvider
 import me.hugo.thankmas.items.itemsets.ItemSetRegistry
-import me.hugo.thankmas.location.MapPoint
 import me.hugo.thankmas.registry.MapBasedRegistry
 import me.hugo.thankmas.savethekweebecs.SaveTheKweebecs
 import me.hugo.thankmas.savethekweebecs.extension.playerData
@@ -10,7 +9,6 @@ import me.hugo.thankmas.savethekweebecs.extension.reset
 import me.hugo.thankmas.savethekweebecs.music.SoundManager
 import me.hugo.thankmas.savethekweebecs.scoreboard.KweebecScoreboardManager
 import me.hugo.thankmas.savethekweebecs.task.GameControllerTask
-import org.bukkit.Bukkit
 import org.bukkit.GameMode
 import org.bukkit.Location
 import org.bukkit.entity.Player
@@ -32,8 +30,7 @@ public class MapRegistry : MapBasedRegistry<String, ArenaMap>(), KoinComponent {
     private val configProvider: ConfigurationProvider by inject()
 
     /** The main hub location. */
-    public val hubLocation: Location? = Bukkit.getWorld("world")
-        ?.let { MapPoint.deserialize("hubLocation")?.toLocation(it) }
+    public val hubLocation: Location? = null
 
     init {
         val config = configProvider.getOrLoad("save_the_kweebecs/maps.yml")

@@ -21,7 +21,7 @@ public class KweebecScoreboardManager(private val instance: SaveTheKweebecs) :
     ScoreboardTemplateManager<SaveTheKweebecsPlayerData>(instance.playerManager), KoinComponent {
 
     override fun loadTemplates() {
-        loadTemplate("scoreboard.lines", "lobby")
+        loadTemplate("scoreboard.lobby.lines", "lobby")
 
         ArenaState.entries.forEach { state ->
             val friendlyName = state.name.lowercase()

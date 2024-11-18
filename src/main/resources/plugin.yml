@@ -1,0 +1,6 @@
+name: SaveTheKweebecs
+main: me.hugo.thankmas.savethekweebecs.SaveTheKweebecs
+version: 1.0
+api-version: 1.21
+depend: [ LuckPerms, Citizens, SlimeWorldPlugin ]
+load: POSTWORLD

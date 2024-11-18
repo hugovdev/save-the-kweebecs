@@ -1,6 +1,5 @@
 package me.hugo.thankmas.savethekweebecs
 
-import com.infernalsuite.aswm.api.SlimePlugin
 import me.hugo.thankmas.ThankmasPlugin
 import me.hugo.thankmas.items.itemsets.ItemSetRegistry
 import me.hugo.thankmas.listener.PlayerDataLoader
@@ -21,7 +20,7 @@ import me.hugo.thankmas.savethekweebecs.team.TeamManager
 import me.hugo.thankmas.savethekweebecs.text.TextPopUpManager
 import org.bukkit.Bukkit
 import org.koin.core.component.inject
-import org.koin.core.context.startKoin
+import org.koin.core.context.loadKoinModules
 import org.koin.core.parameter.parametersOf
 import org.koin.ksp.generated.module
 import revxrsal.commands.autocomplete.SuggestionProvider
@@ -35,7 +34,7 @@ public class SaveTheKweebecs : ThankmasPlugin(listOf("save_the_kweebecs")) {
     private val mapRegistry: MapRegistry by inject()
     private val teamManager: TeamManager by inject()
 
-    public val scoreboardManager: KweebecScoreboardManager by inject()
+    public val scoreboardManager: KweebecScoreboardManager by inject { parametersOf(this) }
 
     private val soundManager: SoundManager by inject()
     private val textPopUp: TextPopUpManager by inject()
@@ -44,12 +43,12 @@ public class SaveTheKweebecs : ThankmasPlugin(listOf("save_the_kweebecs")) {
 
     private val joinLeaveListener: JoinLeaveListener by inject()
 
-    public val playerManager: PlayerDataManager<SaveTheKweebecsPlayerData> = PlayerDataManager { SaveTheKweebecsPlayerData(it, this) }
+    public val playerManager: PlayerDataManager<SaveTheKweebecsPlayerData> =
+        PlayerDataManager { SaveTheKweebecsPlayerData(it, this) }
 
     private var hubWorldName: String = "world"
 
     private lateinit var commandHandler: BukkitCommandHandler
-    public lateinit var slimePlugin: SlimePlugin
 
     public companion object {
         private lateinit var main: SaveTheKweebecs
@@ -59,19 +58,26 @@ public class SaveTheKweebecs : ThankmasPlugin(listOf("save_the_kweebecs")) {
         }
     }
 
-    override fun onEnable() {
+    override fun onLoad() {
+        super.onLoad()
+
         main = this
+        loadKoinModules(SaveTheKweebecsModules().module)
+
+        //Bukkit.unloadWorld(worldName, false)
+
+        //s3WorldSynchronizer.downloadWorld(
+        //    scopeWorld,
+        //    Bukkit.getWorldContainer().resolve(worldName).also { it.mkdirs() })
+    }
+
+    override fun onEnable() {
+        super.onEnable()
+
         logger.info("Starting Save The Kweebecs 2.0...")
 
         logger.info("Starting dependencies and injections!")
-        startKoin {
-            modules(SaveTheKweebecsModules().module)
-        }
-
-        val pluginManager = Bukkit.getPluginManager()
-        slimePlugin = pluginManager.getPlugin("SlimeWorldManager") as SlimePlugin
-
-        saveDefaultConfig()
+        loadKoinModules(SaveTheKweebecsModules().module)
 
         scoreboardManager.initialize()
 
@@ -81,7 +87,8 @@ public class SaveTheKweebecs : ThankmasPlugin(listOf("save_the_kweebecs")) {
         commandHandler = BukkitCommandHandler.create(this)
 
         commandHandler.registerValueResolver(TeamManager.Team::class.java) { context -> teamManager.teams[context.pop()] }
-        commandHandler.autoCompleter.registerParameterSuggestions(TeamManager.Team::class.java,
+        commandHandler.autoCompleter.registerParameterSuggestions(
+            TeamManager.Team::class.java,
             SuggestionProvider.of { teamManager.teams.keys })
 
         commandHandler.registerParameterValidator(TeamManager::class.java) { value, _: CommandParameter?, _: CommandActor? ->
@@ -91,7 +98,8 @@ public class SaveTheKweebecs : ThankmasPlugin(listOf("save_the_kweebecs")) {
         }
 
         commandHandler.registerValueResolver(ArenaMap::class.java) { context -> mapRegistry.get(context.pop()) }
-        commandHandler.autoCompleter.registerParameterSuggestions(ArenaMap::class.java,
+        commandHandler.autoCompleter.registerParameterSuggestions(
+            ArenaMap::class.java,
             SuggestionProvider.of { mapRegistry.getKeys() })
 
         commandHandler.registerParameterValidator(ArenaMap::class.java) { value, _: CommandParameter?, _: CommandActor? ->
@@ -103,6 +111,8 @@ public class SaveTheKweebecs : ThankmasPlugin(listOf("save_the_kweebecs")) {
         commandHandler.register(SaveTheKweebecsCommand())
         commandHandler.register(LobbyCommand())
         commandHandler.registerBrigadier()
+
+        val pluginManager = Bukkit.getPluginManager()
 
         pluginManager.registerEvents(joinLeaveListener, this)
         pluginManager.registerEvents(ArenaListener(), this)

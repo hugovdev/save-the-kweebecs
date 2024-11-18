@@ -10,6 +10,8 @@ import me.hugo.thankmas.savethekweebecs.game.arena.Arena
 import me.hugo.thankmas.savethekweebecs.game.arena.ArenaRegistry
 import me.hugo.thankmas.savethekweebecs.game.events.ArenaEvent
 import me.hugo.thankmas.savethekweebecs.team.TeamManager
+import me.hugo.thankmas.world.SlimeWorldRegistry
+import me.hugo.thankmas.world.s3.S3WorldSynchronizer
 import org.bukkit.Bukkit
 import org.bukkit.configuration.file.FileConfiguration
 import org.koin.core.component.KoinComponent
@@ -26,14 +28,17 @@ import org.koin.core.component.inject
 public class ArenaMap(mapsConfig: FileConfiguration, private val configName: String) : KoinComponent {
 
     private val arenaRegistry: ArenaRegistry by inject()
+    private val s3WorldSynchronizer: S3WorldSynchronizer by inject()
+    private val slimeWorldRegistry: SlimeWorldRegistry by inject()
 
     private val teamManager: TeamManager by inject()
     private val markerRegistry: MarkerRegistry by inject()
 
     /** SlimeWorld to be cloned by every Arena. */
-    public lateinit var slimeWorld: SlimeWorld
+    public val slimeWorld: SlimeWorld
+        get() = slimeWorldRegistry.get(slimeFileName)
 
-    private val slimeFileName = mapsConfig.string("maps.$configName.slime-world")
+    private val slimeFileName = mapsConfig.string("$configName.slime-world")
 
     /** Name used to identify the map internally. */
     public var mapName: String = mapsConfig.getString("$configName.map-name") ?: configName
@@ -44,7 +49,7 @@ public class ArenaMap(mapsConfig: FileConfiguration, private val configName: Str
 
     /** Team that has to save every NPC. */
     public var attackerTeam: TeamManager.Team =
-        teamManager.teams[mapsConfig.string("$configName.attackerTeam")] ?: teamManager.teams["kweebec"]!!
+        teamManager.teams[mapsConfig.string("$configName.attacker-team")] ?: teamManager.teams["kweebec"]!!
 
     /** List of events and the time before they occur. */
     public var events: MutableList<Pair<ArenaEvent, Int>> =
@@ -81,6 +86,11 @@ public class ArenaMap(mapsConfig: FileConfiguration, private val configName: Str
         main.logger.info("Loading map $configName...")
 
         Bukkit.getScheduler().runTaskAsynchronously(SaveTheKweebecs.instance(), Runnable {
+            s3WorldSynchronizer.downloadSlimeFile(
+                "save_the_kweebecs/$slimeFileName",
+                slimeWorldRegistry.slimeWorldContainer.resolve("$slimeFileName.slime")
+            )
+
             // Load the markers and the slime world.
             try {
                 markerRegistry.loadSlimeWorldMarkers(slimeFileName)

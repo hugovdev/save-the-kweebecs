@@ -1,5 +1,6 @@
 package me.hugo.thankmas.savethekweebecs.team
 
+import me.hugo.thankmas.config.ConfigurationProvider
 import me.hugo.thankmas.gui.Icon
 import me.hugo.thankmas.gui.Menu
 import me.hugo.thankmas.gui.paginated.PaginatedMenu
@@ -29,62 +30,17 @@ import java.util.*
  * played as in Save The Kweebecs.
  */
 @Single
-public class TeamManager {
+public class TeamManager : KoinComponent {
 
     private val main = SaveTheKweebecs.instance()
     public val teams: Map<String, Team>
 
     public val transformationsMenu: PaginatedMenu
 
+    private val configProvider: ConfigurationProvider by inject()
+
     init {
-        val config = main.config
-
-        teams = config.getConfigurationSection("teams")?.getKeys(false)
-            ?.associateWith {
-                val configPath = "teams.$it"
-
-                val playerVisuals = mutableListOf<TeamVisual>()
-                var defaultPlayerVisual: TeamVisual? = null
-
-                config.getConfigurationSection("$configPath.player-visuals")?.getKeys(false)?.forEach {
-                    val visualPath = "$configPath.player-visuals.$it"
-
-                    val teamVisual = TeamVisual(
-                        it,
-                        SkinProperty(
-                            config.getString("$visualPath.skin-texture", "")!!,
-                            config.getString("$visualPath.skin-signature", "")!!
-                        ),
-                        config.getInt("$visualPath.headCustomId")
-                    )
-
-                    playerVisuals.add(teamVisual)
-
-                    if (config.getBoolean("$visualPath.default", false)) {
-                        defaultPlayerVisual = teamVisual
-                    }
-                }
-
-                Team(
-                    it,
-                    playerVisuals,
-                    defaultPlayerVisual!!,
-                    config.getString("$configPath.chat-icon", "no-icon")!!,
-                    config.getString("$configPath.team-icon", "no-icon")!!,
-                    config.getInt("$configPath.transformations-menu-slot", 0),
-                    config.getConfigurationSection("$configPath.items")?.getKeys(false)
-                        ?.associate { slot -> slot.toInt() to config.getItemStack("$configPath.items.$slot")!! }
-                        ?: mapOf(),
-                    config.getConfigurationSection("$configPath.shop-items")?.getKeys(false)
-                        ?.map { key ->
-                            TeamShopItem(
-                                key,
-                                config.getItemStack("$configPath.shop-items.$key.item") ?: ItemStack(Material.BEDROCK),
-                                config.getInt("$configPath.shop-items.$key.cost")
-                            )
-                        }?.toMutableList() ?: mutableListOf()
-                )
-            } ?: mapOf()
+        val config = configProvider.getOrLoad("save_the_kweebecs/teams.yml")
 
         transformationsMenu = PaginatedMenu(
             "menu.teamVisuals.title",
@@ -103,6 +59,51 @@ public class TeamManager {
             ),
             null,
         )
+
+        teams = config.getKeys(false).associateWith { configPath ->
+
+            val playerVisuals = mutableListOf<TeamVisual>()
+            var defaultPlayerVisual: TeamVisual? = null
+
+            config.getConfigurationSection("$configPath.player-visuals")?.getKeys(false)?.forEach {
+                val visualPath = "$configPath.player-visuals.$it"
+
+                val teamVisual = TeamVisual(
+                    it,
+                    SkinProperty(
+                        config.getString("$visualPath.skin-texture", "")!!,
+                        config.getString("$visualPath.skin-signature", "")!!
+                    ),
+                    config.getInt("$visualPath.headCustomId")
+                )
+
+                playerVisuals.add(teamVisual)
+
+                if (config.getBoolean("$visualPath.default", false)) {
+                    defaultPlayerVisual = teamVisual
+                }
+            }
+
+            Team(
+                configPath,
+                playerVisuals,
+                defaultPlayerVisual!!,
+                config.getString("$configPath.chat-icon", "no-icon")!!,
+                config.getString("$configPath.team-icon", "no-icon")!!,
+                config.getInt("$configPath.transformations-menu-slot", 0),
+                config.getConfigurationSection("$configPath.items")?.getKeys(false)
+                    ?.associate { slot -> slot.toInt() to config.getItemStack("$configPath.items.$slot")!! }
+                    ?: mapOf(),
+                config.getConfigurationSection("$configPath.shop-items")?.getKeys(false)
+                    ?.map { key ->
+                        TeamShopItem(
+                            key,
+                            config.getItemStack("$configPath.shop-items.$key.item") ?: ItemStack(Material.BEDROCK),
+                            config.getInt("$configPath.shop-items.$key.cost")
+                        )
+                    }?.toMutableList() ?: mutableListOf()
+            )
+        }
 
         teams.values.forEach {
             transformationsMenu.setIcon(
