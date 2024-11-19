@@ -3,12 +3,9 @@ package me.hugo.thankmas.savethekweebecs.listeners
 import com.destroystokyo.paper.MaterialSetTag
 import com.destroystokyo.paper.MaterialTags
 import com.destroystokyo.paper.event.player.PlayerPickupExperienceEvent
-import dev.kezz.miniphrase.audience.sendTranslated
-import io.papermc.paper.event.player.AsyncChatEvent
 import me.hugo.thankmas.lang.TranslatedComponent
 import me.hugo.thankmas.player.player
 import me.hugo.thankmas.player.showTitle
-import me.hugo.thankmas.player.translate
 import me.hugo.thankmas.savethekweebecs.SaveTheKweebecs
 import me.hugo.thankmas.savethekweebecs.extension.*
 import me.hugo.thankmas.savethekweebecs.game.arena.Arena
@@ -17,8 +14,6 @@ import me.hugo.thankmas.savethekweebecs.music.SoundManager
 import me.hugo.thankmas.savethekweebecs.player.SaveTheKweebecsPlayerData
 import net.citizensnpcs.api.CitizensAPI
 import net.citizensnpcs.api.event.NPCRightClickEvent
-import net.kyori.adventure.text.Component
-import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.title.Title
 import org.bukkit.*
 import org.bukkit.entity.Arrow
@@ -268,64 +263,6 @@ public class ArenaListener : TranslatedComponent, Listener {
 
         if (arena == null || !arena.isInGame()) {
             event.isCancelled = true
-        }
-    }
-
-    @EventHandler
-    public fun onPlayerChat(event: AsyncChatEvent) {
-        val player = event.player
-        val arena = player.arena()
-
-        event.viewers().clear()
-        event.viewers().add(Bukkit.getConsoleSender())
-
-        if (arena == null || !arena.hasStarted()) {
-            val isAdmin = player.hasPermission("stk.admin")
-
-            event.viewers().addAll(arena?.arenaPlayers()?.mapNotNull { it.player() } ?: Bukkit.getOnlinePlayers()
-                .filter { it.arena() == null })
-
-            event.renderer { source, _, message, viewer ->
-                if (viewer is Player) {
-                    viewer.translate("global.chat.lobby") {
-                        inserting(
-                            "player_name", Component.text(
-                                if (isAdmin) "[Admin] ${source.name}" else source.name,
-                                if (isAdmin) NamedTextColor.RED else NamedTextColor.GRAY
-                            )
-                        )
-                        inserting(
-                            "message",
-                            event.message()
-                                .color(if (isAdmin) NamedTextColor.WHITE else NamedTextColor.GRAY)
-                        )
-                    }
-                } else Component.text((if (arena == null) "[LOBBY]" else "[${arena.displayName}]") + " ${source.name} -> ")
-                    .append(message)
-            }
-
-            return
-        }
-
-        val team = player.playerData().currentTeam
-
-        if (team == null) {
-            player.sendTranslated("global.chat.cant_speak")
-            event.isCancelled = true
-
-            return
-        }
-
-        event.viewers().addAll(arena.arenaPlayers().mapNotNull { it.player() })
-
-        event.renderer { source, _, message, viewer ->
-            if (viewer is Player) {
-                viewer.translate("global.chat.in_game") {
-                    unparsed("team_icon", team.chatIcon)
-                    inserting("player_name", Component.text(player.name, NamedTextColor.GRAY))
-                    inserting("message", event.message().color(NamedTextColor.WHITE))
-                }
-            } else Component.text("[${arena.displayName}] ${source.name} -> ").append(message)
         }
     }
 

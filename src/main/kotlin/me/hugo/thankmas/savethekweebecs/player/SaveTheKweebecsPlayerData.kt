@@ -73,7 +73,7 @@ public class SaveTheKweebecsPlayerData(playerUUID: UUID, instance: SaveTheKweebe
             playerUUID,
             {
                 // Order players by rank weight if not in an arena, by team id if inside an arena!
-                val rankIndex = 99 - (getPrimaryGroupOrNull(finalPlayer)?.weight?.orElse(0) ?: 0)
+                val rankIndex = 99 - (getPrimaryGroupOrNull()?.weight?.orElse(0) ?: 0)
                 "${currentTeam?.id ?: rankIndex}-$playerUUID"
             },
             { viewer, preferredLocale ->
@@ -82,12 +82,7 @@ public class SaveTheKweebecsPlayerData(playerUUID: UUID, instance: SaveTheKweebe
                 // If the player isn't in an arena or isn't sharing the arena with
                 // the viewer, then we render the normal rank color!
                 if (currentArena == null || !currentArena.hasStarted() || viewer.arena() != currentArena) {
-                    return@PlayerNameTag NamedTextColor.nearestTo(
-                        translations.translate(
-                            "rank.${getPrimaryGroupName(finalPlayer)}.color",
-                            preferredLocale ?: viewer.locale()
-                        ).color() ?: NamedTextColor.BLACK
-                    )
+                    return@PlayerNameTag getTagColor(preferredLocale)
                 }
 
                 // Red for enemies, green for teammates!
@@ -101,11 +96,7 @@ public class SaveTheKweebecsPlayerData(playerUUID: UUID, instance: SaveTheKweebe
                 // If the player isn't in an arena or isn't sharing the arena with
                 // the viewer, then we render the normal rank prefix!
                 if (currentArena == null || !currentArena.hasStarted() || viewer.arena() != currentArena) {
-                    return@PlayerNameTag translations.translate(
-                        "rank.${getPrimaryGroupName(finalPlayer)}.prefix",
-                        preferredLocale ?: viewer.locale()
-                    )
-                        .append(Component.space())
+                    return@PlayerNameTag getRankPrefix(preferredLocale)
                 } else Component.empty()
             },
             suffixSupplier,

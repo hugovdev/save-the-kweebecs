@@ -16,6 +16,7 @@ import me.hugo.thankmas.savethekweebecs.dependencyinjection.SaveTheKweebecsModul
 import me.hugo.thankmas.savethekweebecs.extension.arena
 import me.hugo.thankmas.savethekweebecs.game.map.MapRegistry
 import me.hugo.thankmas.savethekweebecs.listeners.ArenaListener
+import me.hugo.thankmas.savethekweebecs.listeners.TeamsPlayerChat
 import me.hugo.thankmas.savethekweebecs.music.SoundManager
 import me.hugo.thankmas.savethekweebecs.player.SaveTheKweebecsPlayerData
 import me.hugo.thankmas.savethekweebecs.team.TeamRegistry
@@ -103,6 +104,7 @@ public class SaveTheKweebecs : ThankmasPlugin<SaveTheKweebecsPlayerData>(listOf(
         val pluginManager = Bukkit.getPluginManager()
 
         pluginManager.registerEvents(ArenaListener(), this)
+        pluginManager.registerEvents(TeamsPlayerChat(), this)
 
         // Player data loaders and spawnpoints
         pluginManager.registerEvents(PlayerDataLoader(this, this.playerDataManager), this)

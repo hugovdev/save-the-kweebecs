@@ -3,6 +3,7 @@ package me.hugo.thankmas.savethekweebecs.extension
 import dev.kezz.miniphrase.MiniPhraseContext
 import dev.kezz.miniphrase.audience.sendTranslated
 import dev.kezz.miniphrase.tag.TagResolverBuilder
+import me.hugo.thankmas.player.playSound
 import me.hugo.thankmas.player.player
 import me.hugo.thankmas.player.reset
 import me.hugo.thankmas.player.showTitle
