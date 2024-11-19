@@ -44,20 +44,17 @@ public class SaveTheKweebecsPlayerData(playerUUID: UUID, instance: SaveTheKweebe
     public var kills: Int = 0
         set(value) {
             field = value
-            playerUUID.player()?.updateBoardTags("kills")
+            onlinePlayer.updateBoardTags("kills")
         }
 
     public var deaths: Int = 0
         set(value) {
             field = value
-            playerUUID.player()?.updateBoardTags("deaths")
+            onlinePlayer.updateBoardTags("deaths")
         }
 
-    private var coins: Int = 0
-
-    public fun getCoins(): Int {
-        return coins
-    }
+    public var coins: Int = 0
+        private set
 
     public fun resetCoins() {
         coins = 0
@@ -65,8 +62,6 @@ public class SaveTheKweebecsPlayerData(playerUUID: UUID, instance: SaveTheKweebe
 
     override fun initializeBoard(title: String?, locale: Locale?, player: Player?): Player {
         val finalPlayer = super.initializeBoard(title, locale, player)
-
-        val translations = ThankmasPlugin.instance().globalTranslations
 
         // Setup player nametags to show their rank!
         playerNameTag = PlayerNameTag(

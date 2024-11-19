@@ -94,7 +94,7 @@ public data class TeamShopItem(val key: String, val item: ItemStack, val cost: I
      * Returns a clickable icon used to buy this shop item.
      */
     public fun getIcon(player: Player): Icon {
-        val isAvailable = (player.playerData()?.getCoins() ?: 0) >= cost
+        val isAvailable = (player.playerData().coins ?: 0) >= cost
         val translatedLore = player.translateList(
             if (isAvailable)
                 "menu.shop.icon.availableLore"

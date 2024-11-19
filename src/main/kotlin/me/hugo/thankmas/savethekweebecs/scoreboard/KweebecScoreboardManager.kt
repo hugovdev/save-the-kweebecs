@@ -59,9 +59,7 @@ public class KweebecScoreboardManager(instance: SaveTheKweebecs) :
 
         registerTag("coins") { player, _ ->
             Tag.selfClosingInserting {
-                Component.text(
-                    player.playerData().getCoins().toString()
-                )
+                Component.text(player.playerData().coins)
             }
         }
 
