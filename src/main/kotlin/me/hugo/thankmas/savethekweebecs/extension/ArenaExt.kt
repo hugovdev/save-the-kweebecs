@@ -3,7 +3,6 @@ package me.hugo.thankmas.savethekweebecs.extension
 import dev.kezz.miniphrase.MiniPhraseContext
 import dev.kezz.miniphrase.audience.sendTranslated
 import dev.kezz.miniphrase.tag.TagResolverBuilder
-import me.hugo.thankmas.player.playSound
 import me.hugo.thankmas.player.player
 import me.hugo.thankmas.player.reset
 import me.hugo.thankmas.player.showTitle
@@ -12,17 +11,10 @@ import me.hugo.thankmas.savethekweebecs.game.arena.ArenaState
 import me.hugo.thankmas.savethekweebecs.game.map.MapRegistry
 import me.hugo.thankmas.savethekweebecs.music.SoundManager
 import me.hugo.thankmas.savethekweebecs.team.MapTeam
-import net.kyori.adventure.text.Component
-import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.title.Title
 import org.bukkit.GameMode
 import org.bukkit.Sound
-import org.bukkit.entity.Player
 import org.bukkit.entity.Projectile
-import org.bukkit.scoreboard.Criteria
-import org.bukkit.scoreboard.DisplaySlot
-import org.bukkit.scoreboard.RenderType
-import org.bukkit.scoreboard.Team
 import org.koin.java.KoinJavaComponent
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
@@ -85,6 +77,8 @@ public fun Arena.start() {
             }
         }
     }
+
+    arenaPlayers().map { it.playerData() }.forEach { it.playerNameTag?.updateTeamId() }
 }
 
 public fun Arena.end(winnerTeam: MapTeam) {
@@ -128,54 +122,13 @@ public fun Arena.reset() {
         player.playerData().apply {
             currentArena = null
             currentTeam = null
+            playerNameTag?.updateTeamId()
         }
+
         mapRegistry.sendToHub(player)
     }
 
     createWorld(false)
-}
-
-public fun Arena.loadTeamColors(player: Player) {
-    val scoreboard = player.scoreboard
-
-    val playerTeam = player.playerData().currentTeam
-    val attackerTeam = arenaMap.attackerTeam
-    val defenderTeam = arenaMap.defenderTeam
-
-    val hisTeam = if (attackerTeam == playerTeam) attackerTeam else defenderTeam
-    val otherTeam = if (attackerTeam != playerTeam) attackerTeam else defenderTeam
-
-    val ownTeam: Team = (scoreboard.getTeam("own") ?: scoreboard.registerNewTeam("own")).apply {
-        color(NamedTextColor.GREEN)
-        suffix(Component.text(" ${hisTeam.teamIcon}").color(NamedTextColor.WHITE))
-    }
-
-    val enemyTeam: Team = (scoreboard.getTeam("enemy") ?: scoreboard.registerNewTeam("enemy")).apply {
-        color(NamedTextColor.RED)
-        suffix(Component.text(" ${otherTeam.teamIcon}").color(NamedTextColor.WHITE))
-    }
-
-    val healthObjective = scoreboard.getObjective("showHealth") ?: scoreboard.registerNewObjective(
-        "showHealth",
-        Criteria.HEALTH,
-        Component.text("❤", NamedTextColor.RED),
-        RenderType.INTEGER
-    )
-
-    healthObjective.displaySlot = DisplaySlot.BELOW_NAME
-
-    playersPerTeam.forEach { (team, players) ->
-        val isOwnTeam = team == player.playerData()?.currentTeam
-
-        players.mapNotNull { it.player() }.forEach { player ->
-            val playerName = player.name
-
-            if (isOwnTeam) ownTeam.addEntry(playerName)
-            else enemyTeam.addEntry(playerName)
-
-            healthObjective.getScore(player).score = 20
-        }
-    }
 }
 
 context(MiniPhraseContext)

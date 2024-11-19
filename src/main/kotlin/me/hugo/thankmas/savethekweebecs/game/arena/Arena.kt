@@ -152,7 +152,7 @@ public class Arena(public val arenaMap: ArenaMap, public val displayName: String
      * skin if needed, and it will send them to hub.
      */
     public fun leave(player: Player, disconnect: Boolean = false) {
-        val playerData = player.playerData() ?: return
+        val playerData = player.playerData()
 
         if (!hasStarted()) {
             playerData.currentTeam?.let { removePlayerFrom(player, it) }
@@ -168,16 +168,9 @@ public class Arena(public val arenaMap: ArenaMap, public val displayName: String
 
             if (!disconnect) playerData.resetSkin()
 
-            teamPlayers().filter { it != player.uniqueId }.forEach {
-                it.player()?.scoreboard?.getTeam(
-                    if (it.playerData()?.currentTeam == playerData.currentTeam) "own" else "enemy"
-                )?.removeEntry(player.name)
-            }
-
             playerData.currentTeam?.let { removePlayerFrom(player, it) }
 
             val teamsWithPlayers = playersPerTeam.filter { it.value.isNotEmpty() }.map { it.key }
-
             if (teamsWithPlayers.size == 1) this.end(teamsWithPlayers.first())
         }
 

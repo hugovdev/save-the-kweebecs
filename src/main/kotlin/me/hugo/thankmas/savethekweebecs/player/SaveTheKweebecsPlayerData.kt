@@ -2,6 +2,7 @@ package me.hugo.thankmas.savethekweebecs.player
 
 import com.destroystokyo.paper.profile.ProfileProperty
 import dev.kezz.miniphrase.audience.sendTranslated
+import me.hugo.thankmas.ThankmasPlugin
 import me.hugo.thankmas.items.itemsets.ItemSetRegistry
 import me.hugo.thankmas.lang.TranslatedComponent
 import me.hugo.thankmas.player.player
@@ -10,11 +11,15 @@ import me.hugo.thankmas.player.translate
 import me.hugo.thankmas.player.updateBoardTags
 import me.hugo.thankmas.savethekweebecs.SaveTheKweebecs
 import me.hugo.thankmas.savethekweebecs.extension.arena
+import me.hugo.thankmas.savethekweebecs.extension.hasStarted
+import me.hugo.thankmas.savethekweebecs.extension.playerData
 import me.hugo.thankmas.savethekweebecs.game.arena.Arena
 import me.hugo.thankmas.savethekweebecs.game.map.MapRegistry
 import me.hugo.thankmas.savethekweebecs.music.SoundManager
 import me.hugo.thankmas.savethekweebecs.scoreboard.KweebecScoreboardManager
 import me.hugo.thankmas.savethekweebecs.team.MapTeam
+import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.koin.core.component.inject
@@ -24,7 +29,7 @@ import java.util.*
  * A class containing all the current stats and data for [playerUUID].
  */
 public class SaveTheKweebecsPlayerData(playerUUID: UUID, instance: SaveTheKweebecs) :
-    RankedPlayerData<SaveTheKweebecsPlayerData>(playerUUID, instance.playerDataManager), TranslatedComponent {
+    RankedPlayerData<SaveTheKweebecsPlayerData>(playerUUID, instance.playerDataManager, false), TranslatedComponent {
 
     private val soundManager: SoundManager by inject()
     private val mapRegistry: MapRegistry by inject()
@@ -56,6 +61,58 @@ public class SaveTheKweebecsPlayerData(playerUUID: UUID, instance: SaveTheKweebe
 
     public fun resetCoins() {
         coins = 0
+    }
+
+    override fun initializeBoard(title: String?, locale: Locale?, player: Player?): Player {
+        val finalPlayer = super.initializeBoard(title, locale, player)
+
+        val translations = ThankmasPlugin.instance().globalTranslations
+
+        // Setup player nametags to show their rank!
+        playerNameTag = PlayerNameTag(
+            playerUUID,
+            {
+                // Order players by rank weight if not in an arena, by team id if inside an arena!
+                val rankIndex = 99 - (getPrimaryGroupOrNull(finalPlayer)?.weight?.orElse(0) ?: 0)
+                "${currentTeam?.id ?: rankIndex}-$playerUUID"
+            },
+            { viewer, preferredLocale ->
+                val currentArena = currentArena
+
+                // If the player isn't in an arena or isn't sharing the arena with
+                // the viewer, then we render the normal rank color!
+                if (currentArena == null || !currentArena.hasStarted() || viewer.arena() != currentArena) {
+                    return@PlayerNameTag NamedTextColor.nearestTo(
+                        translations.translate(
+                            "rank.${getPrimaryGroupName(finalPlayer)}.color",
+                            preferredLocale ?: viewer.locale()
+                        ).color() ?: NamedTextColor.BLACK
+                    )
+                }
+
+                // Red for enemies, green for teammates!
+                if (viewer.playerData().currentTeam == currentTeam) {
+                    NamedTextColor.GREEN
+                } else NamedTextColor.RED
+            },
+            { viewer, preferredLocale ->
+                val currentArena = currentArena
+
+                // If the player isn't in an arena or isn't sharing the arena with
+                // the viewer, then we render the normal rank prefix!
+                if (currentArena == null || !currentArena.hasStarted() || viewer.arena() != currentArena) {
+                    return@PlayerNameTag translations.translate(
+                        "rank.${getPrimaryGroupName(finalPlayer)}.prefix",
+                        preferredLocale ?: viewer.locale()
+                    )
+                        .append(Component.space())
+                } else Component.empty()
+            },
+            suffixSupplier,
+            belowNameSupplier
+        )
+
+        return finalPlayer
     }
 
     public fun addCoins(amount: Int, reason: String) {
@@ -113,10 +170,8 @@ public class SaveTheKweebecsPlayerData(playerUUID: UUID, instance: SaveTheKweebe
         }
     }
 
-    override fun onSave() {
-        super.onSave()
-
-        val player = onlinePlayerOrNull ?: return
+    override fun onSave(player: Player) {
+        super.onSave(player)
 
         currentArena?.leave(player, true)
         soundManager.stopTrack(player)

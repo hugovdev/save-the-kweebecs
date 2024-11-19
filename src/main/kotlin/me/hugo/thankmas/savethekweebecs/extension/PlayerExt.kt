@@ -13,3 +13,7 @@ public fun Player.arena(): Arena? = playerManager.getPlayerData(this.uniqueId).c
 
 public fun UUID.playerData(): SaveTheKweebecsPlayerData = playerManager.getPlayerData(this)
 public fun Player.playerData(): SaveTheKweebecsPlayerData = playerManager.getPlayerData(this.uniqueId)
+
+public fun Player.giveGameItems() {
+
+}

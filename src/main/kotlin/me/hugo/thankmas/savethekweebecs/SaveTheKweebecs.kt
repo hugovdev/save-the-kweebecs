@@ -9,9 +9,11 @@ import me.hugo.thankmas.listener.PlayerLocaleDetector
 import me.hugo.thankmas.listener.PlayerSpawnpointOnJoin
 import me.hugo.thankmas.markers.registry.MarkerRegistry
 import me.hugo.thankmas.player.PlayerDataManager
+import me.hugo.thankmas.player.rank.PlayerGroupChange
 import me.hugo.thankmas.savethekweebecs.commands.LobbyCommand
 import me.hugo.thankmas.savethekweebecs.commands.SaveTheKweebecsCommand
 import me.hugo.thankmas.savethekweebecs.dependencyinjection.SaveTheKweebecsModules
+import me.hugo.thankmas.savethekweebecs.extension.arena
 import me.hugo.thankmas.savethekweebecs.game.map.MapRegistry
 import me.hugo.thankmas.savethekweebecs.listeners.ArenaListener
 import me.hugo.thankmas.savethekweebecs.music.SoundManager
@@ -35,8 +37,13 @@ public class SaveTheKweebecs : ThankmasPlugin<SaveTheKweebecsPlayerData>(listOf(
 
     private val soundManager: SoundManager by inject()
 
-    override val scoreboardTemplateManager: ScoreboardTemplateManager<SaveTheKweebecsPlayerData> by inject { parametersOf(this) }
-    override val playerDataManager: PlayerDataManager<SaveTheKweebecsPlayerData> = PlayerDataManager { SaveTheKweebecsPlayerData(it, this) }
+    override val scoreboardTemplateManager: ScoreboardTemplateManager<SaveTheKweebecsPlayerData> by inject {
+        parametersOf(
+            this
+        )
+    }
+    override val playerDataManager: PlayerDataManager<SaveTheKweebecsPlayerData> =
+        PlayerDataManager { SaveTheKweebecsPlayerData(it, this) }
 
     private val itemSetManager: ItemSetRegistry by inject { parametersOf(configProvider.getOrLoad("save_the_kweebecs/config.yml")) }
 
@@ -102,6 +109,11 @@ public class SaveTheKweebecs : ThankmasPlugin<SaveTheKweebecsPlayerData>(listOf(
         pluginManager.registerEvents(spawnpointOnJoin, this)
 
         pluginManager.registerEvents(PlayerLocaleDetector(this.playerDataManager), this)
+
+        // Register luck perms events!
+        PlayerGroupChange(this.playerDataManager, shouldUpdate = { player ->
+            player.arena() == null
+        })
 
         soundManager.runTaskTimer(instance(), 0L, 2L)
 
