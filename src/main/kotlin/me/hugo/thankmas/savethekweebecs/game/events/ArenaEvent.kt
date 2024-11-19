@@ -5,8 +5,8 @@ import dev.kezz.miniphrase.audience.sendTranslated
 import me.hugo.thankmas.items.flags
 import me.hugo.thankmas.items.loreTranslatable
 import me.hugo.thankmas.items.nameTranslatable
+import me.hugo.thankmas.player.player
 import me.hugo.thankmas.savethekweebecs.extension.end
-import me.hugo.thankmas.savethekweebecs.extension.player
 import me.hugo.thankmas.savethekweebecs.game.arena.Arena
 import org.bukkit.Material
 import org.bukkit.inventory.ItemFlag

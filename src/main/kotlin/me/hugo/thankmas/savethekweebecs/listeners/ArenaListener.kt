@@ -6,6 +6,7 @@ import com.destroystokyo.paper.event.player.PlayerPickupExperienceEvent
 import dev.kezz.miniphrase.audience.sendTranslated
 import io.papermc.paper.event.player.AsyncChatEvent
 import me.hugo.thankmas.lang.TranslatedComponent
+import me.hugo.thankmas.player.player
 import me.hugo.thankmas.player.showTitle
 import me.hugo.thankmas.player.translate
 import me.hugo.thankmas.savethekweebecs.SaveTheKweebecs
@@ -44,7 +45,6 @@ import java.util.*
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
 
-
 public class ArenaListener : TranslatedComponent, Listener {
 
     private val arenaRegistry: ArenaRegistry by inject()
@@ -59,7 +59,7 @@ public class ArenaListener : TranslatedComponent, Listener {
     public fun onPhysicalInteraction(event: PlayerInteractEvent) {
         if (event.action != Action.PHYSICAL) return
 
-        if (event.player.playerData()?.currentArena == null) {
+        if (event.player.playerData().currentArena == null) {
             event.isCancelled = true
             return
         }
@@ -307,7 +307,7 @@ public class ArenaListener : TranslatedComponent, Listener {
             return
         }
 
-        val team = player.playerData()?.currentTeam
+        val team = player.playerData().currentTeam
 
         if (team == null) {
             player.sendTranslated("global.chat.cant_speak")

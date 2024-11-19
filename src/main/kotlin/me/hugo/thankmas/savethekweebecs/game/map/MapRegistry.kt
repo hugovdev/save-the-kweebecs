@@ -2,24 +2,23 @@ package me.hugo.thankmas.savethekweebecs.game.map
 
 import me.hugo.thankmas.config.ConfigurationProvider
 import me.hugo.thankmas.items.itemsets.ItemSetRegistry
-import me.hugo.thankmas.registry.MapBasedRegistry
+import me.hugo.thankmas.listener.PlayerSpawnpointOnJoin
+import me.hugo.thankmas.player.reset
+import me.hugo.thankmas.registry.AutoCompletableMapRegistry
 import me.hugo.thankmas.savethekweebecs.SaveTheKweebecs
 import me.hugo.thankmas.savethekweebecs.extension.playerData
-import me.hugo.thankmas.savethekweebecs.extension.reset
 import me.hugo.thankmas.savethekweebecs.music.SoundManager
 import me.hugo.thankmas.savethekweebecs.scoreboard.KweebecScoreboardManager
 import me.hugo.thankmas.savethekweebecs.task.GameControllerTask
 import org.bukkit.GameMode
-import org.bukkit.Location
 import org.bukkit.entity.Player
-import org.bukkit.scoreboard.DisplaySlot
 import org.koin.core.annotation.Single
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
 /** Registry of all the maps available for this STK. */
 @Single
-public class MapRegistry : MapBasedRegistry<String, ArenaMap>(), KoinComponent {
+public class MapRegistry : AutoCompletableMapRegistry<ArenaMap>(ArenaMap::class.java), KoinComponent {
 
     private val main: SaveTheKweebecs = SaveTheKweebecs.instance()
 
@@ -28,9 +27,7 @@ public class MapRegistry : MapBasedRegistry<String, ArenaMap>(), KoinComponent {
     private val scoreboardManager: KweebecScoreboardManager by inject()
 
     private val configProvider: ConfigurationProvider by inject()
-
-    /** The main hub location. */
-    public val hubLocation: Location? = null
+    private val spawnpointOnJoin: PlayerSpawnpointOnJoin by inject()
 
     init {
         val config = configProvider.getOrLoad("save_the_kweebecs/maps.yml")
@@ -45,12 +42,10 @@ public class MapRegistry : MapBasedRegistry<String, ArenaMap>(), KoinComponent {
      * teleporting them, resetting their inventory, stats and
      * sounds and giving them the configurable "lobby" ItemSet.
      */
-    public fun sendToHub(player: Player) {
+    public fun sendToHub(player: Player, teleport: Boolean = true) {
         if (!player.isOnline) return
 
-        removeScoreboardEntries(player)
-
-        hubLocation?.let { player.teleport(it) }
+        if (teleport) player.teleport(spawnpointOnJoin.spawnpoint)
         player.reset(GameMode.ADVENTURE)
 
         player.playerData().apply {
@@ -63,25 +58,5 @@ public class MapRegistry : MapBasedRegistry<String, ArenaMap>(), KoinComponent {
 
         scoreboardManager.getTemplate("lobby").printBoard(player)
         itemManager.giveSet("lobby", player)
-    }
-
-    /**
-     * Removes the scoreboard teams used when playing
-     * a game of Save The Kweebecs.
-     */
-    private fun removeScoreboardEntries(player: Player) {
-        val scoreboard = player.scoreboard
-
-        scoreboard.getTeam("own")?.let { team ->
-            team.removeEntries(team.entries)
-            team.unregister()
-        }
-
-        scoreboard.getTeam("enemy")?.let { team ->
-            team.removeEntries(team.entries)
-            team.unregister()
-        }
-
-        scoreboard.clearSlot(DisplaySlot.BELOW_NAME)
     }
 }

@@ -1,8 +1,8 @@
 package me.hugo.thankmas.savethekweebecs.music
 
 import me.hugo.thankmas.lang.TranslatedComponent
+import me.hugo.thankmas.player.player
 import me.hugo.thankmas.player.translate
-import me.hugo.thankmas.savethekweebecs.extension.player
 import net.kyori.adventure.key.Key
 import net.kyori.adventure.sound.Sound
 import org.bukkit.entity.Player

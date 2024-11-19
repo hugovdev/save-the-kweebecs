@@ -9,7 +9,8 @@ import me.hugo.thankmas.savethekweebecs.SaveTheKweebecs
 import me.hugo.thankmas.savethekweebecs.game.arena.Arena
 import me.hugo.thankmas.savethekweebecs.game.arena.ArenaRegistry
 import me.hugo.thankmas.savethekweebecs.game.events.ArenaEvent
-import me.hugo.thankmas.savethekweebecs.team.TeamManager
+import me.hugo.thankmas.savethekweebecs.team.MapTeam
+import me.hugo.thankmas.savethekweebecs.team.TeamRegistry
 import me.hugo.thankmas.world.SlimeWorldRegistry
 import me.hugo.thankmas.world.s3.S3WorldSynchronizer
 import org.bukkit.Bukkit
@@ -31,7 +32,7 @@ public class ArenaMap(mapsConfig: FileConfiguration, private val configName: Str
     private val s3WorldSynchronizer: S3WorldSynchronizer by inject()
     private val slimeWorldRegistry: SlimeWorldRegistry by inject()
 
-    private val teamManager: TeamManager by inject()
+    private val teamRegistry: TeamRegistry by inject()
     private val markerRegistry: MarkerRegistry by inject()
 
     /** SlimeWorld to be cloned by every Arena. */
@@ -44,41 +45,47 @@ public class ArenaMap(mapsConfig: FileConfiguration, private val configName: Str
     public var mapName: String = mapsConfig.getString("$configName.map-name") ?: configName
 
     /** Team that defends NPCs. */
-    public var defenderTeam: TeamManager.Team =
-        teamManager.teams[mapsConfig.string("$configName.defender-team")] ?: teamManager.teams["trork"]!!
+    public var defenderTeam: MapTeam =
+        teamRegistry.getOrNull(mapsConfig.string("$configName.defender-team")) ?: teamRegistry.get("trork")
 
     /** Team that has to save every NPC. */
-    public var attackerTeam: TeamManager.Team =
-        teamManager.teams[mapsConfig.string("$configName.attacker-team")] ?: teamManager.teams["kweebec"]!!
+    public var attackerTeam: MapTeam =
+        teamRegistry.getOrNull(mapsConfig.string("$configName.attacker-team")) ?: teamRegistry.get("kweebec")
 
     /** List of events and the time before they occur. */
     public var events: MutableList<Pair<ArenaEvent, Int>> =
         mapsConfig.getStringList("$configName.events").mapNotNull { ArenaEvent.deserialize(it) }.toMutableList()
 
     /** The minimum players required by this map to play. */
-    public var minPlayers: Int = mapsConfig.getInt("$configName.min-players", 6)
+    public val minPlayers: Int = mapsConfig.getInt("$configName.min-players", 6)
 
     /** The maximum amount of players this map can hold. */
-    public var maxPlayers: Int = mapsConfig.getInt("$configName.max-players", 12)
+    public val maxPlayers: Int = mapsConfig.getInt("$configName.max-players", 12)
+
+    /** Time of day this map is played in. */
+    public val time: Long = mapsConfig.getLong("$configName.time", 0L)
 
     /** Where the countdown starts at when the game is starting. */
-    public var defaultCountdown: Int = mapsConfig.getInt("$configName.default-countdown", 60)
+    public val defaultCountdown: Int = mapsConfig.getInt("$configName.default-countdown", 60)
 
     /** Whether a game in this map should become available when loaded. */
-    public var isAvailable: Boolean = mapsConfig.getBoolean("$configName.available", true)
+    public val isAvailable: Boolean = mapsConfig.getBoolean("$configName.available", true)
 
     /** Locations for the waiting lobby and spectator spawnpoint. */
     public lateinit var lobbySpawnpoint: MapPoint
+        private set
     public lateinit var spectatorSpawnpoint: MapPoint
+        private set
 
     /** List of spawnpoints where attackers spawn. */
-    public lateinit var attackerSpawnpoints: List<MapPoint>
+    private lateinit var attackerSpawnpoints: List<MapPoint>
 
     /** List of spawnpoints where attackers spawn. */
-    public lateinit var defenderSpawnpoints: List<MapPoint>
+    private lateinit var defenderSpawnpoints: List<MapPoint>
 
     /** List of spawnpoints where kidnapped NPCs spawn. */
     public lateinit var kidnappedSpawnpoints: List<MapPoint>
+        private set
 
     init {
         val main = SaveTheKweebecs.instance()

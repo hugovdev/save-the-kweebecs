@@ -1,6 +1,9 @@
 package me.hugo.thankmas.savethekweebecs.task
 
 import me.hugo.thankmas.lang.TranslatedComponent
+import me.hugo.thankmas.player.playSound
+import me.hugo.thankmas.player.player
+import me.hugo.thankmas.player.reset
 import me.hugo.thankmas.player.showTitle
 import me.hugo.thankmas.savethekweebecs.extension.*
 import me.hugo.thankmas.savethekweebecs.game.arena.Arena
@@ -106,9 +109,8 @@ public class GameControllerTask : TranslatedComponent, BukkitRunnable() {
                     player.reset(GameMode.SURVIVAL)
                     team.giveItems(player)
 
-                    val selectedVisual =
-                        playerData.selectedTeamVisuals[team] ?: team.defaultPlayerVisual
-                    player.inventory.helmet = selectedVisual.craftHead(player)
+                    val selectedVisual = team.skins.random()
+                    player.inventory.helmet = selectedVisual.displayItem.buildItem(player)
 
                     player.showTitle(
                         "arena.respawned.title", Title.Times.times(

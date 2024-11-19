@@ -3,12 +3,15 @@ package me.hugo.thankmas.savethekweebecs.extension
 import dev.kezz.miniphrase.MiniPhraseContext
 import dev.kezz.miniphrase.audience.sendTranslated
 import dev.kezz.miniphrase.tag.TagResolverBuilder
+import me.hugo.thankmas.player.playSound
+import me.hugo.thankmas.player.player
+import me.hugo.thankmas.player.reset
 import me.hugo.thankmas.player.showTitle
 import me.hugo.thankmas.savethekweebecs.game.arena.Arena
 import me.hugo.thankmas.savethekweebecs.game.arena.ArenaState
 import me.hugo.thankmas.savethekweebecs.game.map.MapRegistry
 import me.hugo.thankmas.savethekweebecs.music.SoundManager
-import me.hugo.thankmas.savethekweebecs.team.TeamManager
+import me.hugo.thankmas.savethekweebecs.team.MapTeam
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.title.Title
@@ -68,12 +71,10 @@ public fun Arena.start() {
 
             val playerData = teamPlayer.playerData()
 
-            val selectedVisual = playerData.selectedTeamVisuals[team] ?: team.defaultPlayerVisual
+            val selectedSkin = team.skins.random()
 
-            teamPlayer.inventory.helmet = selectedVisual.craftHead(teamPlayer)
-            // loadTeamColors(teamPlayer)
-
-            playerData.setSkin(selectedVisual.skin)
+            teamPlayer.inventory.helmet = selectedSkin.displayItem.buildItem(teamPlayer)
+            playerData.setSkin(selectedSkin.skin)
 
             soundManager.playTrack(SoundManager.IN_GAME_MUSIC, teamPlayer)
 
@@ -86,7 +87,7 @@ public fun Arena.start() {
     }
 }
 
-public fun Arena.end(winnerTeam: TeamManager.Team) {
+public fun Arena.end(winnerTeam: MapTeam) {
     this.winnerTeam = winnerTeam
     this.arenaTime = 10
     this.arenaState = ArenaState.FINISHING

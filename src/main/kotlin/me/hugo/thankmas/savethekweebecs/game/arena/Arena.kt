@@ -8,24 +8,24 @@ import me.hugo.thankmas.items.TranslatableItem
 import me.hugo.thankmas.items.itemsets.ItemSetRegistry
 import me.hugo.thankmas.lang.TranslatedComponent
 import me.hugo.thankmas.location.MapPoint
+import me.hugo.thankmas.player.player
+import me.hugo.thankmas.player.reset
+import me.hugo.thankmas.player.updateBoardTags
 import me.hugo.thankmas.savethekweebecs.SaveTheKweebecs
-import me.hugo.thankmas.savethekweebecs.extension.*
+import me.hugo.thankmas.savethekweebecs.extension.announceTranslation
+import me.hugo.thankmas.savethekweebecs.extension.end
+import me.hugo.thankmas.savethekweebecs.extension.hasStarted
+import me.hugo.thankmas.savethekweebecs.extension.playerData
 import me.hugo.thankmas.savethekweebecs.game.events.ArenaEvent
 import me.hugo.thankmas.savethekweebecs.game.map.ArenaMap
 import me.hugo.thankmas.savethekweebecs.game.map.MapRegistry
-import me.hugo.thankmas.savethekweebecs.team.TeamManager
+import me.hugo.thankmas.savethekweebecs.team.MapTeam
 import net.citizensnpcs.api.CitizensAPI
 import net.citizensnpcs.api.npc.NPC
 import net.citizensnpcs.api.trait.trait.Equipment
-import net.citizensnpcs.trait.CurrentLocation
-import net.citizensnpcs.trait.HologramTrait
-import net.citizensnpcs.trait.LookClose
-import net.citizensnpcs.trait.SkinTrait
+import net.citizensnpcs.trait.*
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
-import org.bukkit.Bukkit
-import org.bukkit.GameMode
-import org.bukkit.GameRule
-import org.bukkit.World
+import org.bukkit.*
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
@@ -33,6 +33,7 @@ import org.koin.core.component.inject
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
+
 
 /**
  * A representation of a playable game of Save The
@@ -55,10 +56,12 @@ public class Arena(public val arenaMap: ArenaMap, public val displayName: String
     public var arenaState: ArenaState = ArenaState.RESETTING
         set(state) {
             field = state
+
+            if (state == ArenaState.RESETTING) return
             arenaPlayers().mapNotNull { it.player() }.forEach { setCurrentBoard(it) }
         }
 
-    public var winnerTeam: TeamManager.Team? = null
+    public var winnerTeam: MapTeam? = null
 
     public var arenaTime: Int = arenaMap.defaultCountdown
 
@@ -66,7 +69,7 @@ public class Arena(public val arenaMap: ArenaMap, public val displayName: String
     public val currentEvent: ArenaEvent?
         get() = arenaMap.events.getOrNull(eventIndex)?.first
 
-    public val playersPerTeam: MutableMap<TeamManager.Team, MutableList<UUID>> = mutableMapOf(
+    public val playersPerTeam: MutableMap<MapTeam, MutableList<UUID>> = mutableMapOf(
         Pair(arenaMap.defenderTeam, mutableListOf()),
         Pair(arenaMap.attackerTeam, mutableListOf())
     )
@@ -199,7 +202,7 @@ public class Arena(public val arenaMap: ArenaMap, public val displayName: String
         spectators.clear()
         deadPlayers.clear()
 
-        if (!firstTime) Bukkit.unloadWorld(world, true)
+        if (!firstTime) Bukkit.unloadWorld(world, false)
 
         AdvancedSlimePaperAPI.instance().loadWorld(slimeWorld, false)
 
@@ -212,6 +215,8 @@ public class Arena(public val arenaMap: ArenaMap, public val displayName: String
         newWorld.setGameRule(GameRule.DO_MOB_SPAWNING, false)
         newWorld.setGameRule(GameRule.DO_FIRE_TICK, false)
         newWorld.setGameRule(GameRule.RANDOM_TICK_SPEED, 0)
+
+        newWorld.time = arenaMap.time
 
         world = newWorld
 
@@ -240,7 +245,7 @@ public class Arena(public val arenaMap: ArenaMap, public val displayName: String
 
         npc.data().setPersistent("arena", arenaUUID.toString())
 
-        val visualToUse = attackerTeam.visuals.random()
+        val visualToUse = attackerTeam.skins.random()
 
         npc.getOrAddTrait(SkinTrait::class.java)?.apply {
             setSkinPersistent(
@@ -250,7 +255,10 @@ public class Arena(public val arenaMap: ArenaMap, public val displayName: String
             )
         }
 
-        npc.getOrAddTrait(Equipment::class.java).set(Equipment.EquipmentSlot.HELMET, visualToUse.craftHead(null))
+        npc.getOrAddTrait(ScoreboardTrait::class.java).color = ChatColor.RED
+
+        npc.getOrAddTrait(Equipment::class.java)
+            .set(Equipment.EquipmentSlot.HELMET, visualToUse.displayItem.buildItem(Locale.ENGLISH))
         npc.getOrAddTrait(CurrentLocation::class.java)
 
         npc.getOrAddTrait(LookClose::class.java).apply { lookClose(true) }
@@ -311,14 +319,14 @@ public class Arena(public val arenaMap: ArenaMap, public val displayName: String
     /**
      * Adds [player] to [team].
      */
-    private fun addPlayerTo(player: Player, team: TeamManager.Team) {
+    private fun addPlayerTo(player: Player, team: MapTeam) {
         addPlayerTo(player.uniqueId, team)
     }
 
     /**
      * Adds [uuid] to [team].
      */
-    private fun addPlayerTo(uuid: UUID, team: TeamManager.Team) {
+    private fun addPlayerTo(uuid: UUID, team: MapTeam) {
         playersPerTeam.computeIfAbsent(team) { mutableListOf() }.add(uuid)
         uuid.playerData().currentTeam = team
     }
@@ -326,14 +334,14 @@ public class Arena(public val arenaMap: ArenaMap, public val displayName: String
     /**
      * Removes [player] from [team].
      */
-    private fun removePlayerFrom(player: Player, team: TeamManager.Team) {
+    private fun removePlayerFrom(player: Player, team: MapTeam) {
         removePlayerFrom(player.uniqueId, team)
     }
 
     /**
      * Removes [uuid] from [team].
      */
-    private fun removePlayerFrom(uuid: UUID, team: TeamManager.Team) {
+    private fun removePlayerFrom(uuid: UUID, team: MapTeam) {
         playersPerTeam[team]?.remove(uuid)
         uuid.playerData().currentTeam = null
     }

@@ -10,6 +10,7 @@ import me.hugo.thankmas.scoreboard.ScoreboardTemplate
 import me.hugo.thankmas.scoreboard.ScoreboardTemplateManager
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.minimessage.tag.Tag
+import org.bukkit.Bukkit
 import org.koin.core.annotation.Single
 import org.koin.core.component.KoinComponent
 
@@ -18,10 +19,16 @@ import org.koin.core.component.KoinComponent
  */
 @Single
 public class KweebecScoreboardManager(instance: SaveTheKweebecs) :
-    ScoreboardTemplateManager<SaveTheKweebecsPlayerData>(instance.playerManager), KoinComponent {
+    ScoreboardTemplateManager<SaveTheKweebecsPlayerData>(instance.playerDataManager), KoinComponent {
 
     override fun registerTags() {
         super.registerTags()
+
+        registerTag("all_players") { _, _ ->
+            Tag.selfClosingInserting {
+                Component.text(Bukkit.getOnlinePlayers().size)
+            }
+        }
 
         registerTag("count") { player, _ ->
             Tag.selfClosingInserting {

@@ -11,7 +11,9 @@ import me.hugo.thankmas.savethekweebecs.game.arena.ArenaRegistry
 import me.hugo.thankmas.savethekweebecs.game.map.ArenaMap
 import me.hugo.thankmas.savethekweebecs.game.map.MapRegistry
 import me.hugo.thankmas.savethekweebecs.scoreboard.KweebecScoreboardManager
-import me.hugo.thankmas.savethekweebecs.team.TeamManager
+import me.hugo.thankmas.savethekweebecs.team.MapTeam
+import me.hugo.thankmas.savethekweebecs.team.TeamRegistry
+import me.hugo.thankmas.savethekweebecs.team.TeamShopItem
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.entity.Player
@@ -34,7 +36,7 @@ public class SaveTheKweebecsCommand : TranslatedComponent {
     private val arenaRegistry: ArenaRegistry by inject()
 
     private val scoreboardManager: KweebecScoreboardManager by inject()
-    private val teamManager: TeamManager by inject()
+    private val teamRegistry: TeamRegistry by inject()
 
     @DefaultFor("savethekweebecs", "stk", "savethekweebecs help", "stk help")
     @Description("Help for the the main STK plugin.")
@@ -183,7 +185,7 @@ public class SaveTheKweebecsCommand : TranslatedComponent {
     @Subcommand("admin kit get")
     @Description("Gives the kit for the team!")
     @CommandPermission("savethekweebecs.admin")
-    private fun getKit(sender: Player, team: TeamManager.Team) {
+    private fun getKit(sender: Player, team: MapTeam) {
         val items = team.kitItems
 
         if (items.isEmpty()) {
@@ -199,7 +201,7 @@ public class SaveTheKweebecsCommand : TranslatedComponent {
     @Subcommand("admin kit save")
     @Description("Saves the kit for the team!")
     @CommandPermission("savethekweebecs.admin")
-    private fun saveKit(sender: Player, team: TeamManager.Team) {
+    private fun saveKit(sender: Player, team: MapTeam) {
         val playerItems = mutableMapOf<Int, ItemStack>()
 
         (0..sender.inventory.size).forEach { slot ->
@@ -232,7 +234,7 @@ public class SaveTheKweebecsCommand : TranslatedComponent {
     @Subcommand("admin shop list")
     @Description("Lists the shop items for a team!")
     @CommandPermission("savethekweebecs.admin")
-    private fun listShopItems(sender: Player, team: TeamManager.Team) {
+    private fun listShopItems(sender: Player, team: MapTeam) {
         val items = team.shopItems
 
         if (items.isEmpty()) {
@@ -253,7 +255,7 @@ public class SaveTheKweebecsCommand : TranslatedComponent {
     @Subcommand("admin shop add")
     @Description("Add the item in your main hand to a team's shop.")
     @CommandPermission("savethekweebecs.admin")
-    private fun addShopItem(sender: Player, key: String, cost: Int, team: TeamManager.Team) {
+    private fun addShopItem(sender: Player, key: String, cost: Int, team: MapTeam) {
         val items = team.shopItems
 
         if (items.any { it.key == key }) {
@@ -270,7 +272,7 @@ public class SaveTheKweebecsCommand : TranslatedComponent {
             return
         }
 
-        team.shopItems.add(TeamManager.TeamShopItem(key, item, cost))
+        team.shopItems.add(TeamShopItem(key, item, cost))
 
         val configPath = "teams.${team.id}.shop-items.$key"
 
@@ -288,7 +290,7 @@ public class SaveTheKweebecsCommand : TranslatedComponent {
     @Subcommand("admin shop remove")
     @Description("Remove the item from a team's shop.")
     @CommandPermission("savethekweebecs.admin")
-    private fun removeShopItem(sender: Player, key: String, team: TeamManager.Team) {
+    private fun removeShopItem(sender: Player, key: String, team: MapTeam) {
         val items = team.shopItems
         val item = items.firstOrNull { it.key == key }
 
@@ -312,7 +314,7 @@ public class SaveTheKweebecsCommand : TranslatedComponent {
     @Subcommand("admin shop get")
     @Description("Get the item from a team's shop.")
     @CommandPermission("savethekweebecs.admin")
-    private fun getShopItem(sender: Player, key: String, team: TeamManager.Team) {
+    private fun getShopItem(sender: Player, key: String, team: MapTeam) {
         val items = team.shopItems
         val item = items.firstOrNull { it.key == key }
 
