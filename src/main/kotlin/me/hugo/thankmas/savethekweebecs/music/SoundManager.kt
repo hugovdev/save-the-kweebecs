@@ -5,7 +5,6 @@ import me.hugo.thankmas.player.translate
 import me.hugo.thankmas.savethekweebecs.extension.player
 import net.kyori.adventure.key.Key
 import net.kyori.adventure.sound.Sound
-import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder.component
 import org.bukkit.entity.Player
 import org.bukkit.scheduler.BukkitRunnable
 import org.koin.core.annotation.Single
@@ -86,8 +85,8 @@ public class SoundManager : BukkitRunnable(), TranslatedComponent {
 
         player.sendActionBar(
             player.translate("global.sound.music.now_playing") {
-                component("track_name", player.translate("global.sound.${track.trackId}.name"))
-                component("track_author", player.translate("global.sound.${track.trackId}.author"))
+                inserting("track_name", player.translate("global.sound.${track.trackId}.name"))
+                inserting("track_author", player.translate("global.sound.${track.trackId}.author"))
             }
         )
     }

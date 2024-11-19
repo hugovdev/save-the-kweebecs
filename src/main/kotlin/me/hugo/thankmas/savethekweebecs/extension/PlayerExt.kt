@@ -43,7 +43,7 @@ public fun Player.updateBoardTags(vararg tags: String) {
 
     playerData.getBoardOrNull() ?: return
 
-    scoreboardManager.getTemplate(playerData.lastBoardId ?: "lobby").updateLinesForTag(this, *tags)
+    scoreboardManager.getTemplate(playerData.lastBoardId).updateLinesForTag(this, *tags)
 }
 
 /** Updates this player's board lines that contains [tags]. */

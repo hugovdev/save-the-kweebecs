@@ -13,7 +13,6 @@ import me.hugo.thankmas.savethekweebecs.extension.*
 import me.hugo.thankmas.savethekweebecs.game.arena.Arena
 import me.hugo.thankmas.savethekweebecs.scoreboard.KweebecScoreboardManager
 import me.hugo.thankmas.savethekweebecs.team.TeamManager
-import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder
 import org.bukkit.GameMode
 import org.bukkit.entity.Player
 import org.koin.core.component.inject
@@ -69,8 +68,8 @@ public class SaveTheKweebecsPlayerData(playerUUID: UUID, instance: SaveTheKweebe
         playerUUID.player()?.let {
             it.updateBoardTags("coins")
             it.sendTranslated(if (isNegative) "arena.gold.minus" else "arena.gold.plus") {
-                Placeholder.unparsed("amount", displayedAmount.toString())
-                Placeholder.component("reason", onlinePlayer.translate("arena.gold.reason.$reason"))
+                unparsed("amount", displayedAmount.toString())
+                inserting("reason", onlinePlayer.translate("arena.gold.reason.$reason"))
             }
         }
     }
@@ -78,12 +77,11 @@ public class SaveTheKweebecsPlayerData(playerUUID: UUID, instance: SaveTheKweebe
     override fun setLocale(newLocale: Locale) {
         super.setLocale(newLocale)
 
-        val arena = currentArena
-
-        val currentBoard = lastBoardId ?: "lobby"
-        scoreboardManager.getTemplate(currentBoard).printBoard(player = onlinePlayer, locale = newLocale)
+        scoreboardManager.getTemplate(lastBoardId).printBoard(player = onlinePlayer, locale = newLocale)
 
         val itemSetManager: ItemSetRegistry by inject()
+
+        val arena = currentArena
         itemSetManager.giveSetNullable(
             if (arena != null) arena.arenaState.itemSetKey else "lobby",
             onlinePlayer,

@@ -11,7 +11,6 @@ import me.hugo.thankmas.savethekweebecs.music.SoundManager
 import me.hugo.thankmas.savethekweebecs.team.TeamManager
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
-import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder
 import net.kyori.adventure.title.Title
 import org.bukkit.GameMode
 import org.bukkit.Sound
@@ -52,7 +51,7 @@ public fun Arena.start() {
 
             teamPlayer.sendTranslated("arena.start.${team.id}") {
 
-                Placeholder.unparsed("team_icon", team.chatIcon)
+                unparsed("team_icon", team.chatIcon)
             }
 
             teamPlayer.playSound(Sound.ENTITY_ENDERMAN_TELEPORT)
@@ -72,7 +71,7 @@ public fun Arena.start() {
             val selectedVisual = playerData.selectedTeamVisuals[team] ?: team.defaultPlayerVisual
 
             teamPlayer.inventory.helmet = selectedVisual.craftHead(teamPlayer)
-            loadTeamColors(teamPlayer)
+            // loadTeamColors(teamPlayer)
 
             playerData.setSkin(selectedVisual.skin)
 
@@ -103,7 +102,7 @@ public fun Arena.end(winnerTeam: TeamManager.Team) {
             soundManager.playSoundEffect("save_the_kweebecs.victory", teamPlayer)
 
             teamPlayer.showTitle(
-                if (winnerTeam == teamPlayer.playerData()?.currentTeam) "arena.win.title"
+                if (winnerTeam == teamPlayer.playerData().currentTeam) "arena.win.title"
                 else "arena.lost.title",
                 Title.Times.times(
                     0.2.seconds.toJavaDuration(),
@@ -117,7 +116,7 @@ public fun Arena.end(winnerTeam: TeamManager.Team) {
     }
 
     announceTranslation("arena.win.${winnerTeam.id}") {
-        Placeholder.unparsed("team_icon", winnerTeam.chatIcon)
+        unparsed("team_icon", winnerTeam.chatIcon)
     }
 }
 
@@ -175,12 +174,6 @@ public fun Arena.loadTeamColors(player: Player) {
 
             healthObjective.getScore(player).score = 20
         }
-    }
-}
-
-public fun Arena.announce(message: Component) {
-    arenaPlayers().forEach {
-        it.player()?.sendMessage(message)
     }
 }
 

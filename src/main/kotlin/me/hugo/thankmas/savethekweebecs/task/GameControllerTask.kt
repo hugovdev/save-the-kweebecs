@@ -7,7 +7,6 @@ import me.hugo.thankmas.savethekweebecs.game.arena.Arena
 import me.hugo.thankmas.savethekweebecs.game.arena.ArenaRegistry
 import me.hugo.thankmas.savethekweebecs.game.arena.ArenaState
 import me.hugo.thankmas.savethekweebecs.util.InstantFirework
-import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder
 import net.kyori.adventure.title.Title
 import org.bukkit.Color
 import org.bukkit.FireworkEffect
@@ -76,7 +75,7 @@ public class GameControllerTask : TranslatedComponent, BukkitRunnable() {
 
                     arena.playSound(Sound.BLOCK_NOTE_BLOCK_HAT)
                     arena.announceTranslation(if (time == 1) "arena.$translationName.second" else "arena.$translationName.seconds") {
-                        Placeholder.unparsed("count", time.toString())
+                        unparsed("count", time.toString())
                     }
                 }
 
@@ -129,7 +128,7 @@ public class GameControllerTask : TranslatedComponent, BukkitRunnable() {
                             0.25.seconds.toJavaDuration()
                         )
                     ) {
-                        Placeholder.unparsed("respawn_time", newTime.toString())
+                        unparsed("respawn_time", newTime.toString())
                     }
 
                     player.playSound(Sound.BLOCK_NOTE_BLOCK_HAT)

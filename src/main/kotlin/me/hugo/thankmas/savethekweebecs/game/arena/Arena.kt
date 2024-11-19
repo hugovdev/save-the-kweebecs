@@ -21,7 +21,6 @@ import net.citizensnpcs.trait.CurrentLocation
 import net.citizensnpcs.trait.HologramTrait
 import net.citizensnpcs.trait.LookClose
 import net.citizensnpcs.trait.SkinTrait
-import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
 import org.bukkit.Bukkit
 import org.bukkit.GameMode
@@ -96,14 +95,14 @@ public class Arena(public val arenaMap: ArenaMap, public val displayName: String
     public fun joinArena(player: Player) {
         if (hasStarted()) {
             player.sendTranslated("arena.join.started") {
-                Placeholder.unparsed("arena_name", displayName)
+                unparsed("arena_name", displayName)
             }
             return
         }
 
         if (teamPlayers().size >= arenaMap.maxPlayers) {
             player.sendTranslated("arena.join.full") {
-                Placeholder.unparsed("arena_name", displayName)
+                unparsed("arena_name", displayName)
             }
             return
         }
@@ -122,13 +121,16 @@ public class Arena(public val arenaMap: ArenaMap, public val displayName: String
 
         playerData.currentArena = this
 
-        val team = playersPerTeam.keys.minBy { playersPerTeam[it]?.size ?: 0 }
+        // If every team has the same amount of players use prioritize attackers!
+        val team = if (playersPerTeam.values.map { it.size }.distinct().size == 1) arenaMap.attackerTeam
+        else playersPerTeam.keys.minBy { playersPerTeam[it]?.size ?: 0 }
+
         addPlayerTo(player, team)
 
         announceTranslation("arena.join.global") {
-            Placeholder.unparsed("player_name", player.name)
-            Placeholder.unparsed("current_players", arenaPlayers().size.toString())
-            Placeholder.unparsed("max_players", arenaMap.maxPlayers.toString())
+            unparsed("player_name", player.name)
+            unparsed("current_players", arenaPlayers().size.toString())
+            unparsed("max_players", arenaMap.maxPlayers.toString())
         }
 
         itemManager.giveSetNullable(arenaState.itemSetKey, player)
@@ -153,9 +155,9 @@ public class Arena(public val arenaMap: ArenaMap, public val displayName: String
             playerData.currentTeam?.let { removePlayerFrom(player, it) }
 
             announceTranslation("arena.leave.global") {
-                Placeholder.unparsed("player_name", player.name)
-                Placeholder.unparsed("current_players", arenaPlayers().size.toString())
-                Placeholder.unparsed("max_players", arenaMap.maxPlayers.toString())
+                unparsed("player_name", player.name)
+                unparsed("current_players", arenaPlayers().size.toString())
+                unparsed("max_players", arenaMap.maxPlayers.toString())
             }
         } else {
             player.damage(player.health)
@@ -197,7 +199,7 @@ public class Arena(public val arenaMap: ArenaMap, public val displayName: String
         spectators.clear()
         deadPlayers.clear()
 
-        if (!firstTime) Bukkit.unloadWorld(world, false)
+        if (!firstTime) Bukkit.unloadWorld(world, true)
 
         AdvancedSlimePaperAPI.instance().loadWorld(slimeWorld, false)
 
@@ -346,13 +348,13 @@ public class Arena(public val arenaMap: ArenaMap, public val displayName: String
         name = "menu.arenas.arenaIcon.name",
         lore = "menu.arenas.arenaIcon.lore"
     ).buildItem(locale) {
-        Placeholder.unparsed("display_name", displayName)
-        Placeholder.component("arena_state", arenaState.getFriendlyName(locale))
-        Placeholder.unparsed("map_name", arenaMap.mapName)
-        Placeholder.unparsed("team_size", (arenaMap.maxPlayers / 2).toString())
-        Placeholder.unparsed("current_players", teamPlayers().size.toString())
-        Placeholder.unparsed("max_players", arenaMap.maxPlayers.toString())
-        Placeholder.unparsed("arena_short_uuid", arenaUUID.toString().split("-").first())
+        unparsed("display_name", displayName)
+        inserting("arena_state", arenaState.getFriendlyName(locale))
+        unparsed("map_name", arenaMap.mapName)
+        unparsed("team_size", (arenaMap.maxPlayers / 2).toString())
+        unparsed("current_players", teamPlayers().size.toString())
+        unparsed("max_players", arenaMap.maxPlayers.toString())
+        unparsed("arena_short_uuid", arenaUUID.toString().split("-").first())
     }
 
 }

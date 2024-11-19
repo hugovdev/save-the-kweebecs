@@ -17,19 +17,8 @@ import org.koin.core.component.KoinComponent
  * Registry of every [ScoreboardTemplate] used in the plugin.
  */
 @Single
-public class KweebecScoreboardManager(private val instance: SaveTheKweebecs) :
+public class KweebecScoreboardManager(instance: SaveTheKweebecs) :
     ScoreboardTemplateManager<SaveTheKweebecsPlayerData>(instance.playerManager), KoinComponent {
-
-    override fun loadTemplates() {
-        loadTemplate("scoreboard.lobby.lines", "lobby")
-
-        ArenaState.entries.forEach { state ->
-            val friendlyName = state.name.lowercase()
-            val key = "scoreboard.$friendlyName.lines"
-
-            loadTemplate(key, friendlyName)
-        }
-    }
 
     override fun registerTags() {
         super.registerTags()
@@ -102,6 +91,17 @@ public class KweebecScoreboardManager(private val instance: SaveTheKweebecs) :
             Tag.selfClosingInserting {
                 Component.text(player.arena()?.displayName ?: "Custom Game")
             }
+        }
+    }
+
+    override fun loadTemplates() {
+        loadTemplate("scoreboard.lobby.lines", "lobby")
+
+        ArenaState.entries.forEach { state ->
+            val friendlyName = state.name.lowercase()
+            val key = "scoreboard.$friendlyName.lines"
+
+            loadTemplate(key, friendlyName)
         }
     }
 }

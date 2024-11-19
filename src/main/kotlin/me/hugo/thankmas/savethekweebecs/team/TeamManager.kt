@@ -14,7 +14,6 @@ import me.hugo.thankmas.player.translateList
 import me.hugo.thankmas.savethekweebecs.SaveTheKweebecs
 import me.hugo.thankmas.savethekweebecs.extension.playSound
 import me.hugo.thankmas.savethekweebecs.extension.playerData
-import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder
 import org.bukkit.Material
 import org.bukkit.Sound
 import org.bukkit.entity.Player
@@ -213,7 +212,7 @@ public class TeamManager : KoinComponent {
                     "menu.shop.icon.availableLore"
                 else "menu.shop.icon.notAvailableLore",
             ) {
-                Placeholder.unparsed("cost", cost.toString())
+                unparsed("cost", cost.toString())
             }
 
             return Icon({ clicker, _ ->
@@ -229,14 +228,14 @@ public class TeamManager : KoinComponent {
 
                  clicker.sendTranslated(
                      "menu.shop.item_bought",
-                     Placeholder.component(
+                     component(
                          "item",
                          Component.text(
                              PlainTextComponentSerializer.plainText()
                                  .serialize(item.itemMeta?.displayName() ?: item.displayName()), NamedTextColor.GREEN
                          )
                      ),
-                     Placeholder.unparsed("amount", item.amount.toString())
+                     unparsed("amount", item.amount.toString())
                  )
                  playerData.addCoins(cost * -1, "bought_item")
 
@@ -270,7 +269,7 @@ public class TeamManager : KoinComponent {
                 .nameTranslatable("global.cosmetic.head.$key.selector_name", language)
                 .loreTranslatable(
                     if (selected) "menu.teamVisuals.selectedLore" else
-                        "menu.teamVisuals.selectLore", language, Placeholder.component(
+                        "menu.teamVisuals.selectLore", language, component(
                         "visual_name",
                         playerUuid.translate("global.cosmetic.head.$key.selector_name")
                     )
@@ -303,7 +302,7 @@ public class TeamManager : KoinComponent {
                 if (oldVisual == this) {
                     player.sendTranslated(
                         "system.teamVisuals.alreadySelected",
-                        Placeholder.component(
+                        component(
                             "visual_name",
                             playerUuid.translate("global.cosmetic.head.$key.selector_name")
                         )
@@ -318,7 +317,7 @@ public class TeamManager : KoinComponent {
 
                 player.sendTranslated(
                     "system.teamVisuals.equipped",
-                    Placeholder.component(
+                    component(
                         "visual_name",
                         playerUuid.translate("global.cosmetic.head.$key.selector_name")
                     )

@@ -14,7 +14,6 @@ import me.hugo.thankmas.savethekweebecs.scoreboard.KweebecScoreboardManager
 import me.hugo.thankmas.savethekweebecs.team.TeamManager
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
-import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import org.koin.core.component.inject
@@ -75,12 +74,12 @@ public class SaveTheKweebecsCommand : TranslatedComponent {
             sender.sendMessage(
                 sender.toComponent(
                     sender.getUnformattedLine("arena.list.member").replace("<arena_uuid>", it.arenaUUID.toString()),
-                    Placeholder.unparsed("display_name", it.displayName),
-                    Placeholder.component("arena_state", it.arenaState.getFriendlyName(sender.locale())),
-                    Placeholder.unparsed("team_size", (it.arenaMap.maxPlayers / 2).toString()),
-                    Placeholder.unparsed("map_name", it.arenaMap.mapName),
-                    Placeholder.unparsed("current_players", it.teamPlayers().size.toString()),
-                    Placeholder.unparsed("max_players", it.arenaMap.maxPlayers.toString())
+                    unparsed("display_name", it.displayName),
+                    component("arena_state", it.arenaState.getFriendlyName(sender.locale())),
+                    unparsed("team_size", (it.arenaMap.maxPlayers / 2).toString()),
+                    unparsed("map_name", it.arenaMap.mapName),
+                    unparsed("current_players", it.teamPlayers().size.toString()),
+                    unparsed("max_players", it.arenaMap.maxPlayers.toString())
                 )
             )
         }*/
@@ -189,7 +188,7 @@ public class SaveTheKweebecsCommand : TranslatedComponent {
 
         if (items.isEmpty()) {
             sender.sendTranslated("system.kit.noKit") {
-                Placeholder.unparsed("team", team.id)
+                unparsed("team", team.id)
             }
             return
         }
@@ -238,15 +237,15 @@ public class SaveTheKweebecsCommand : TranslatedComponent {
 
         if (items.isEmpty()) {
             sender.sendTranslated("system.shop.noShop") {
-                Placeholder.unparsed("team", team.id)
+                unparsed("team", team.id)
             }
             return
         }
 
         team.shopItems.forEach {
             sender.sendTranslated("system.shop.listedItem") {
-                Placeholder.unparsed("key", it.key)
-                Placeholder.unparsed("cost", it.cost.toString())
+                unparsed("key", it.key)
+                unparsed("cost", it.cost.toString())
             }
         }
     }
@@ -259,7 +258,7 @@ public class SaveTheKweebecsCommand : TranslatedComponent {
 
         if (items.any { it.key == key }) {
             sender.sendTranslated("system.shop.duplicateKey") {
-                Placeholder.unparsed("key", team.id)
+                unparsed("key", team.id)
             }
             return
         }
@@ -281,8 +280,8 @@ public class SaveTheKweebecsCommand : TranslatedComponent {
         main.saveConfig()
 
         sender.sendTranslated("system.shop.added") {
-            Placeholder.unparsed("key", key)
-            Placeholder.unparsed("team", team.id)
+            unparsed("key", key)
+            unparsed("team", team.id)
         }
     }
 
@@ -305,8 +304,8 @@ public class SaveTheKweebecsCommand : TranslatedComponent {
         main.saveConfig()
 
         sender.sendTranslated("system.shop.removed") {
-            Placeholder.unparsed("key", key)
-            Placeholder.unparsed("team", team.id)
+            unparsed("key", key)
+            unparsed("team", team.id)
         }
     }
 

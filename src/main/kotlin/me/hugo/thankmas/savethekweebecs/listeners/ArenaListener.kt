@@ -14,10 +14,10 @@ import me.hugo.thankmas.savethekweebecs.game.arena.Arena
 import me.hugo.thankmas.savethekweebecs.game.arena.ArenaRegistry
 import me.hugo.thankmas.savethekweebecs.music.SoundManager
 import me.hugo.thankmas.savethekweebecs.player.SaveTheKweebecsPlayerData
+import net.citizensnpcs.api.CitizensAPI
 import net.citizensnpcs.api.event.NPCRightClickEvent
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
-import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder
 import net.kyori.adventure.title.Title
 import org.bukkit.*
 import org.bukkit.entity.Arrow
@@ -37,6 +37,8 @@ import org.bukkit.event.player.PlayerChangedWorldEvent
 import org.bukkit.event.player.PlayerDropItemEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.weather.WeatherChangeEvent
+import org.bukkit.potion.PotionEffect
+import org.bukkit.potion.PotionEffectType
 import org.koin.core.component.inject
 import java.util.*
 import kotlin.time.Duration.Companion.seconds
@@ -75,8 +77,9 @@ public class ArenaListener : TranslatedComponent, Listener {
 
     @EventHandler
     public fun onDamage(event: EntityDamageEvent) {
-        val player = event.entity
-        if (player !is Player) return
+        if (CitizensAPI.getNPCRegistry().isNPC(event.entity)) return
+
+        val player = event.entity as? Player ?: return
 
         val playerData = player.playerData()
         val arena: Arena? = player.arena()
@@ -127,8 +130,8 @@ public class ArenaListener : TranslatedComponent, Listener {
                 // by themselves!
                 if (lastAttack == null || lastAttack.time < System.currentTimeMillis() - (10000) || attacker == null) {
                     arena.announceTranslation("arena.death.self") {
-                        Placeholder.unparsed("player_team_icon", playerData.currentTeam?.chatIcon ?: "")
-                        Placeholder.unparsed("player", player.name)
+                        unparsed("player_team_icon", playerData.currentTeam?.chatIcon ?: "")
+                        unparsed("player", player.name)
                     }
                 } else {
                     val attackerData = attacker.playerData()
@@ -150,10 +153,10 @@ public class ArenaListener : TranslatedComponent, Listener {
                     )
 
                     arena.announceTranslation("arena.death.player") {
-                        Placeholder.unparsed("player", player.name)
-                        Placeholder.unparsed("player_team_icon", playerData.currentTeam?.chatIcon ?: "")
-                        Placeholder.unparsed("killer_team_icon", attackerData.currentTeam?.chatIcon ?: "")
-                        Placeholder.unparsed("killer", attacker.name)
+                        unparsed("player", player.name)
+                        unparsed("player_team_icon", playerData.currentTeam?.chatIcon ?: "")
+                        unparsed("killer_team_icon", attackerData.currentTeam?.chatIcon ?: "")
+                        unparsed("killer", attacker.name)
                     }
 
                     attackerData.addCoins(10, "kill")
@@ -186,18 +189,26 @@ public class ArenaListener : TranslatedComponent, Listener {
 
             val location = npc.storedLocation
 
-            if (arena.remainingNPCs.any { !it.value }) soundManager.playSoundEffect(
-                "save_the_kweebecs.kweebec_saved",
-                player
-            )
+            if (arena.remainingNPCs.any { !it.value }) {
+                soundManager.playSoundEffect(
+                    "save_the_kweebecs.kweebec_saved",
+                    player
+                )
+
+                arena.remainingNPCs.filter { !it.value }.forEach {
+                    (it.key.entity as? Player)?.addPotionEffect(
+                        PotionEffect(PotionEffectType.GLOWING, 5 * 20, 1, false, false)
+                    )
+                }
+            }
 
             if (location.block.type == Material.FIRE) location.block.type = Material.AIR
 
             arena.announceTranslation("arena.${attackerTeam.id}.saved") {
-                Placeholder.unparsed("player", player.name)
-                Placeholder.unparsed("player_team_icon", attackerTeam.chatIcon)
-                Placeholder.unparsed("npcs_saved", arena.remainingNPCs.count { it.value }.toString())
-                Placeholder.unparsed("total_npcs", arena.remainingNPCs.size.toString())
+                unparsed("player", player.name)
+                unparsed("player_team_icon", attackerTeam.chatIcon)
+                unparsed("npcs_saved", arena.remainingNPCs.count { it.value }.toString())
+                unparsed("total_npcs", arena.remainingNPCs.size.toString())
             }
 
             player.playerData().addCoins(15, "saved_${attackerTeam.id}")
@@ -277,13 +288,13 @@ public class ArenaListener : TranslatedComponent, Listener {
             event.renderer { source, _, message, viewer ->
                 if (viewer is Player) {
                     viewer.translate("global.chat.lobby") {
-                        Placeholder.component(
+                        inserting(
                             "player_name", Component.text(
                                 if (isAdmin) "[Admin] ${source.name}" else source.name,
                                 if (isAdmin) NamedTextColor.RED else NamedTextColor.GRAY
                             )
                         )
-                        Placeholder.component(
+                        inserting(
                             "message",
                             event.message()
                                 .color(if (isAdmin) NamedTextColor.WHITE else NamedTextColor.GRAY)
@@ -310,9 +321,9 @@ public class ArenaListener : TranslatedComponent, Listener {
         event.renderer { source, _, message, viewer ->
             if (viewer is Player) {
                 viewer.translate("global.chat.in_game") {
-                    Placeholder.unparsed("team_icon", team.chatIcon)
-                    Placeholder.component("player_name", Component.text(player.name, NamedTextColor.GRAY))
-                    Placeholder.component("message", event.message().color(NamedTextColor.WHITE))
+                    unparsed("team_icon", team.chatIcon)
+                    inserting("player_name", Component.text(player.name, NamedTextColor.GRAY))
+                    inserting("message", event.message().color(NamedTextColor.WHITE))
                 }
             } else Component.text("[${arena.displayName}] ${source.name} -> ").append(message)
         }
