@@ -2,7 +2,6 @@ package me.hugo.thankmas.savethekweebecs.player
 
 import com.destroystokyo.paper.profile.ProfileProperty
 import dev.kezz.miniphrase.audience.sendTranslated
-import me.hugo.thankmas.ThankmasPlugin
 import me.hugo.thankmas.items.itemsets.ItemSetRegistry
 import me.hugo.thankmas.lang.TranslatedComponent
 import me.hugo.thankmas.player.player
