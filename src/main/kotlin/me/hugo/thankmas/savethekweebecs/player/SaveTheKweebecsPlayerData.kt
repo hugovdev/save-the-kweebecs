@@ -4,8 +4,8 @@ import com.destroystokyo.paper.profile.ProfileProperty
 import dev.kezz.miniphrase.audience.sendTranslated
 import me.hugo.thankmas.items.itemsets.ItemSetRegistry
 import me.hugo.thankmas.lang.TranslatedComponent
+import me.hugo.thankmas.player.cosmetics.CosmeticsPlayerData
 import me.hugo.thankmas.player.player
-import me.hugo.thankmas.player.rank.RankedPlayerData
 import me.hugo.thankmas.player.translate
 import me.hugo.thankmas.player.updateBoardTags
 import me.hugo.thankmas.savethekweebecs.SaveTheKweebecs
@@ -28,7 +28,7 @@ import java.util.*
  * A class containing all the current stats and data for [playerUUID].
  */
 public class SaveTheKweebecsPlayerData(playerUUID: UUID, instance: SaveTheKweebecs) :
-    RankedPlayerData<SaveTheKweebecsPlayerData>(playerUUID, instance.playerDataManager, false), TranslatedComponent {
+    CosmeticsPlayerData<SaveTheKweebecsPlayerData>(playerUUID, instance), TranslatedComponent {
 
     private val soundManager: SoundManager by inject()
     private val mapRegistry: MapRegistry by inject()
@@ -39,6 +39,42 @@ public class SaveTheKweebecsPlayerData(playerUUID: UUID, instance: SaveTheKweebe
     public var lastAttack: PlayerAttack? = null
 
     private var playerSkin: ProfileProperty? = null
+
+    /** Special team id implementation to keep teams in-game in mind. */
+    override val teamIdSupplier: () -> String = {
+        // Order players by rank weight if not in an arena, by team id if inside an arena!
+        val rankIndex = 99 - (getPrimaryGroupOrNull()?.weight?.orElse(0) ?: 0)
+        "${currentTeam?.id ?: rankIndex}-$playerUUID"
+    }
+
+    /** Special player tag color implementation to keep teams in-game in mind. */
+    override val namedTextColor: ((viewer: Player, preferredLocale: Locale?) -> NamedTextColor) =
+        textColor@{ viewer, preferredLocale ->
+            val currentArena = currentArena
+
+            // If the player isn't in an arena or isn't sharing the arena with
+            // the viewer, then we render the normal rank color!
+            if (currentArena == null || !currentArena.hasStarted() || viewer.arena() != currentArena) {
+                return@textColor getTagColor(preferredLocale)
+            }
+
+            // Red for enemies, green for teammates!
+            return@textColor if (viewer.playerData().currentTeam == currentTeam) {
+                NamedTextColor.GREEN
+            } else NamedTextColor.RED
+        }
+
+    /** Special player tag prefix implementation to keep teams in-game in mind. */
+    override val prefixSupplier: ((viewer: Player, preferredLocale: Locale?) -> Component) =
+        prefix@{ viewer, preferredLocale ->
+            val currentArena = currentArena
+
+            // If the player isn't in an arena or isn't sharing the arena with
+            // the viewer, then we render the normal rank prefix!
+            return@prefix if (currentArena == null || !currentArena.hasStarted() || viewer.arena() != currentArena) {
+                getRankPrefix(preferredLocale)
+            } else Component.empty()
+        }
 
     public var kills: Int = 0
         set(value) {
@@ -57,47 +93,6 @@ public class SaveTheKweebecsPlayerData(playerUUID: UUID, instance: SaveTheKweebe
 
     public fun resetCoins() {
         coins = 0
-    }
-
-    override fun initializeBoard(title: String?, locale: Locale?, player: Player?): Player {
-        val finalPlayer = super.initializeBoard(title, locale, player)
-
-        // Setup player nametags to show their rank!
-        playerNameTag = PlayerNameTag(
-            playerUUID,
-            {
-                // Order players by rank weight if not in an arena, by team id if inside an arena!
-                val rankIndex = 99 - (getPrimaryGroupOrNull()?.weight?.orElse(0) ?: 0)
-                "${currentTeam?.id ?: rankIndex}-$playerUUID"
-            },
-            { viewer, preferredLocale ->
-                val currentArena = currentArena
-
-                // If the player isn't in an arena or isn't sharing the arena with
-                // the viewer, then we render the normal rank color!
-                if (currentArena == null || !currentArena.hasStarted() || viewer.arena() != currentArena) {
-                    return@PlayerNameTag getTagColor(preferredLocale)
-                }
-
-                // Red for enemies, green for teammates!
-                if (viewer.playerData().currentTeam == currentTeam) {
-                    NamedTextColor.GREEN
-                } else NamedTextColor.RED
-            },
-            { viewer, preferredLocale ->
-                val currentArena = currentArena
-
-                // If the player isn't in an arena or isn't sharing the arena with
-                // the viewer, then we render the normal rank prefix!
-                if (currentArena == null || !currentArena.hasStarted() || viewer.arena() != currentArena) {
-                    return@PlayerNameTag getRankPrefix(preferredLocale)
-                } else Component.empty()
-            },
-            suffixSupplier,
-            belowNameSupplier
-        )
-
-        return finalPlayer
     }
 
     public fun addCoins(amount: Int, reason: String) {
