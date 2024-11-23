@@ -24,6 +24,7 @@ import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.sql.upsert
 import org.koin.core.component.inject
 import java.util.*
 
@@ -161,6 +162,19 @@ public class SaveTheKweebecsPlayerData(playerUUID: UUID, instance: SaveTheKweebe
 
             it.hidePlayer(instance, player)
             player.hidePlayer(instance, it)
+        }
+    }
+
+    protected override fun save() {
+        val playerId = playerUUID.toString()
+
+        transaction {
+            // Update or insert this player's selected stuff!
+            PlayerData.upsert {
+                it[uuid] = playerId
+                it[selectedCosmetic] = this@SaveTheKweebecsPlayerData.selectedCosmetic.value?.id ?: ""
+                it[currency] = currency
+            }
         }
     }
 
