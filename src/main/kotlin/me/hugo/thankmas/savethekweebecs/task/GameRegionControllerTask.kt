@@ -7,7 +7,7 @@ import me.hugo.thankmas.savethekweebecs.game.arena.ArenaRegistry
 import org.bukkit.scheduler.BukkitRunnable
 import org.koin.core.component.inject
 
-public class RegionControllerTask : TranslatedComponent, BukkitRunnable() {
+public class GameRegionControllerTask : TranslatedComponent, BukkitRunnable() {
 
     private val arenaRegistry: ArenaRegistry by inject()
 

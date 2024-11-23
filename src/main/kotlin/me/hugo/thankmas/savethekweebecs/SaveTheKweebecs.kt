@@ -21,7 +21,7 @@ import me.hugo.thankmas.savethekweebecs.listeners.ArenaListener
 import me.hugo.thankmas.savethekweebecs.listeners.TeamsPlayerChat
 import me.hugo.thankmas.savethekweebecs.music.SoundManager
 import me.hugo.thankmas.savethekweebecs.player.SaveTheKweebecsPlayerData
-import me.hugo.thankmas.savethekweebecs.task.RegionControllerTask
+import me.hugo.thankmas.savethekweebecs.task.GameRegionControllerTask
 import me.hugo.thankmas.savethekweebecs.team.TeamRegistry
 import me.hugo.thankmas.scoreboard.ScoreboardTemplateManager
 import org.bukkit.Bukkit
@@ -126,7 +126,7 @@ public class SaveTheKweebecs : ThankmasPlugin<SaveTheKweebecsPlayerData>(listOf(
             player.arena() == null
         })
 
-        RegionControllerTask().runTaskTimer(this, 0L, 1L)
+        GameRegionControllerTask().runTaskTimer(this, 0L, 1L)
         soundManager.runTaskTimer(instance(), 0L, 2L)
 
         Bukkit.getScoreboardManager().mainScoreboard.teams.forEach { it.unregister() }
