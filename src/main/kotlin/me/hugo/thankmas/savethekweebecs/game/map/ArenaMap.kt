@@ -6,7 +6,7 @@ import me.hugo.thankmas.config.string
 import me.hugo.thankmas.location.MapPoint
 import me.hugo.thankmas.markers.registry.MarkerRegistry
 import me.hugo.thankmas.region.WeakRegion
-import me.hugo.thankmas.region.types.JumpPadRegion
+import me.hugo.thankmas.region.types.MushroomJumpPad
 import me.hugo.thankmas.savethekweebecs.SaveTheKweebecs
 import me.hugo.thankmas.savethekweebecs.game.arena.Arena
 import me.hugo.thankmas.savethekweebecs.game.arena.ArenaRegistry
@@ -125,7 +125,7 @@ public class ArenaMap(mapsConfig: FileConfiguration, private val configName: Str
             spectatorSpawnpoint =
                 markerRegistry.getMarkerForType("spectator_spawnpoint", slimeFileName).first().location
 
-            weakRegions = markerRegistry.getMarkerForType("jump_pad", slimeFileName).map { JumpPadRegion(it) }
+            weakRegions = markerRegistry.getMarkerForType("jump_pad", slimeFileName).map { MushroomJumpPad(it) }
 
             main.logger.info("Map ${this.configName} has been loaded correctly and is now valid!")
 

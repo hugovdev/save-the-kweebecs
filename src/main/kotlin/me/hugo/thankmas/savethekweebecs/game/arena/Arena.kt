@@ -170,8 +170,10 @@ public class Arena(public val arenaMap: ArenaMap, public val displayName: String
 
             playerData.currentTeam?.let { removePlayerFrom(player, it) }
 
-            val teamsWithPlayers = playersPerTeam.filter { it.value.isNotEmpty() }.map { it.key }
-            if (teamsWithPlayers.size == 1) this.end(teamsWithPlayers.first())
+            if (arenaState != ArenaState.FINISHING && arenaState != ArenaState.RESETTING) {
+                val teamsWithPlayers = playersPerTeam.filter { it.value.isNotEmpty() }.map { it.key }
+                if (teamsWithPlayers.size == 1) this.end(teamsWithPlayers.first())
+            }
         }
 
         if (!disconnect) {
