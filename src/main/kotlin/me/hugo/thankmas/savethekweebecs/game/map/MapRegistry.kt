@@ -54,6 +54,7 @@ public class MapRegistry : AutoCompletableMapRegistry<ArenaMap>(ArenaMap::class.
             resetCoins()
         }
 
+        player.playerData().giveCosmetic()
         soundManager.stopTrack(player)
 
         scoreboardManager.getTemplate("lobby").printBoard(player)

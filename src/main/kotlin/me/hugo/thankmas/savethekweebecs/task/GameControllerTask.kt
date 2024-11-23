@@ -1,10 +1,12 @@
 package me.hugo.thankmas.savethekweebecs.task
 
 import me.hugo.thankmas.lang.TranslatedComponent
+import me.hugo.thankmas.listener.PlayerSpawnpointOnJoin
 import me.hugo.thankmas.player.playSound
 import me.hugo.thankmas.player.player
 import me.hugo.thankmas.player.reset
 import me.hugo.thankmas.player.showTitle
+import me.hugo.thankmas.savethekweebecs.SaveTheKweebecs
 import me.hugo.thankmas.savethekweebecs.extension.*
 import me.hugo.thankmas.savethekweebecs.game.arena.Arena
 import me.hugo.thankmas.savethekweebecs.game.arena.ArenaRegistry
@@ -17,6 +19,7 @@ import org.bukkit.GameMode
 import org.bukkit.Sound
 import org.bukkit.scheduler.BukkitRunnable
 import org.koin.core.component.inject
+import java.util.*
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
 
@@ -26,13 +29,23 @@ import kotlin.time.toJavaDuration
  */
 public class GameControllerTask : TranslatedComponent, BukkitRunnable() {
 
+    private val spawnpointOnJoin: PlayerSpawnpointOnJoin by inject()
     private val arenaRegistry: ArenaRegistry by inject()
+    private val teleporting: MutableSet<UUID> = mutableSetOf()
 
     override fun run() {
-        //Bukkit.getOnlinePlayers().filter { it.playerData()?.currentArena == null && it.location.y <= 10 }
-        //    .forEach { player ->
-        //        arenaRegistry.hubLocation?.let { player.teleport(it) }
-        //    }
+        SaveTheKweebecs.instance().playerDataManager.getAllPlayerData()
+            .asSequence().filter { it.currentArena == null }
+            .mapNotNull { it.onlinePlayerOrNull }
+            .filter {
+                it.uniqueId !in teleporting && it.location.y <= 10
+            }.forEach {
+                teleporting += it.uniqueId
+
+                it.teleportAsync(spawnpointOnJoin.spawnpoint).thenRun {
+                    teleporting -= it.uniqueId
+                }
+            }
 
         arenaRegistry.getValues().forEach { arena ->
             val arenaState = arena.arenaState

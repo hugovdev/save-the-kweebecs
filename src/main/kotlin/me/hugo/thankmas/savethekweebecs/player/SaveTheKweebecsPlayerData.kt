@@ -2,6 +2,7 @@ package me.hugo.thankmas.savethekweebecs.player
 
 import com.destroystokyo.paper.profile.ProfileProperty
 import dev.kezz.miniphrase.audience.sendTranslated
+import me.hugo.thankmas.database.PlayerData
 import me.hugo.thankmas.items.itemsets.ItemSetRegistry
 import me.hugo.thankmas.lang.TranslatedComponent
 import me.hugo.thankmas.player.cosmetics.CosmeticsPlayerData
@@ -21,6 +22,8 @@ import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
+import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.core.component.inject
 import java.util.*
 
@@ -28,7 +31,9 @@ import java.util.*
  * A class containing all the current stats and data for [playerUUID].
  */
 public class SaveTheKweebecsPlayerData(playerUUID: UUID, instance: SaveTheKweebecs) :
-    CosmeticsPlayerData<SaveTheKweebecsPlayerData>(playerUUID, instance), TranslatedComponent {
+    CosmeticsPlayerData<SaveTheKweebecsPlayerData>(playerUUID, instance, doesUpdateCosmetic = {
+        it.playerData().currentArena == null
+    }), TranslatedComponent {
 
     private val soundManager: SoundManager by inject()
     private val mapRegistry: MapRegistry by inject()
@@ -90,6 +95,15 @@ public class SaveTheKweebecsPlayerData(playerUUID: UUID, instance: SaveTheKweebe
 
     public var coins: Int = 0
         private set
+
+    init {
+        transaction {
+            val playerData = PlayerData.selectAll().where { PlayerData.uuid eq playerUUID.toString() }.singleOrNull()
+
+            loadCurrency(playerData)
+            loadCosmetics(playerData)
+        }
+    }
 
     public fun resetCoins() {
         coins = 0

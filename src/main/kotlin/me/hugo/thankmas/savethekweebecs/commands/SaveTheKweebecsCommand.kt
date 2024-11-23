@@ -16,6 +16,7 @@ import me.hugo.thankmas.savethekweebecs.team.TeamRegistry
 import me.hugo.thankmas.savethekweebecs.team.TeamShopItem
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import org.koin.core.component.inject
@@ -72,19 +73,25 @@ public class SaveTheKweebecsCommand : TranslatedComponent {
     private fun listArenas(sender: Player) {
         sender.sendTranslated("arena.list.header")
 
-        /*arenaRegistry.getValues().forEach {
+        arenaRegistry.getValues().forEach {
+            val unformattedString = (miniPhrase.translationRegistry["arena.list.member", sender.locale()]
+                ?: miniPhrase.translationRegistry["arena.list.member", miniPhrase.defaultLocale])?.replace(
+                "<arena_uuid>",
+                it.arenaUUID.toString()
+            ) ?: return
+
             sender.sendMessage(
-                sender.toComponent(
-                    sender.getUnformattedLine("arena.list.member").replace("<arena_uuid>", it.arenaUUID.toString()),
-                    unparsed("display_name", it.displayName),
-                    component("arena_state", it.arenaState.getFriendlyName(sender.locale())),
-                    unparsed("team_size", (it.arenaMap.maxPlayers / 2).toString()),
-                    unparsed("map_name", it.arenaMap.mapName),
-                    unparsed("current_players", it.teamPlayers().size.toString()),
-                    unparsed("max_players", it.arenaMap.maxPlayers.toString())
+                miniPhrase.miniMessage.deserialize(
+                    unformattedString,
+                    Placeholder.parsed("display_name", it.displayName),
+                    Placeholder.component("arena_state", it.arenaState.getFriendlyName(sender.locale())),
+                    Placeholder.parsed("team_size", (it.arenaMap.maxPlayers / 2).toString()),
+                    Placeholder.parsed("map_name", it.arenaMap.mapName),
+                    Placeholder.parsed("current_players", it.teamPlayers().size.toString()),
+                    Placeholder.parsed("max_players", it.arenaMap.maxPlayers.toString())
                 )
             )
-        }*/
+        }
     }
 
     @Subcommand("join")

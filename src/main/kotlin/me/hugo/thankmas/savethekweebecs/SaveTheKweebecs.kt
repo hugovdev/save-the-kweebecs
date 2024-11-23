@@ -1,8 +1,10 @@
 package me.hugo.thankmas.savethekweebecs
 
 import me.hugo.thankmas.ThankmasPlugin
+import me.hugo.thankmas.commands.CosmeticsCommand
 import me.hugo.thankmas.commands.TranslationsCommands
 import me.hugo.thankmas.config.string
+import me.hugo.thankmas.cosmetics.CosmeticsRegistry
 import me.hugo.thankmas.items.itemsets.ItemSetRegistry
 import me.hugo.thankmas.listener.PlayerDataLoader
 import me.hugo.thankmas.listener.PlayerLocaleDetector
@@ -19,6 +21,7 @@ import me.hugo.thankmas.savethekweebecs.listeners.ArenaListener
 import me.hugo.thankmas.savethekweebecs.listeners.TeamsPlayerChat
 import me.hugo.thankmas.savethekweebecs.music.SoundManager
 import me.hugo.thankmas.savethekweebecs.player.SaveTheKweebecsPlayerData
+import me.hugo.thankmas.savethekweebecs.task.RegionControllerTask
 import me.hugo.thankmas.savethekweebecs.team.TeamRegistry
 import me.hugo.thankmas.scoreboard.ScoreboardTemplateManager
 import org.bukkit.Bukkit
@@ -30,12 +33,8 @@ import revxrsal.commands.bukkit.BukkitCommandHandler
 
 public class SaveTheKweebecs : ThankmasPlugin<SaveTheKweebecsPlayerData>(listOf("save_the_kweebecs")) {
 
-    private val mapRegistry: MapRegistry by inject()
-    private val teamRegistry: TeamRegistry by inject()
     private val markerRegistry: MarkerRegistry by inject()
-
     private val spawnpointOnJoin: PlayerSpawnpointOnJoin by inject { parametersOf(hubWorldName, "lobby_spawnpoint") }
-
     private val soundManager: SoundManager by inject()
 
     override val scoreboardTemplateManager: ScoreboardTemplateManager<SaveTheKweebecsPlayerData> by inject {
@@ -43,6 +42,7 @@ public class SaveTheKweebecs : ThankmasPlugin<SaveTheKweebecsPlayerData>(listOf(
             this
         )
     }
+
     override val playerDataManager: PlayerDataManager<SaveTheKweebecsPlayerData> =
         PlayerDataManager { SaveTheKweebecsPlayerData(it, this) }
 
@@ -92,8 +92,17 @@ public class SaveTheKweebecs : ThankmasPlugin<SaveTheKweebecsPlayerData>(listOf(
 
         commandHandler = BukkitCommandHandler.create(this)
 
+        val cosmeticRegistry: CosmeticsRegistry by inject()
+
+        cosmeticRegistry.registerCompletions(commandHandler)
+
+        val mapRegistry: MapRegistry by inject()
+        val teamRegistry: TeamRegistry by inject()
+
         teamRegistry.registerCompletions(commandHandler)
         mapRegistry.registerCompletions(commandHandler)
+
+        commandHandler.register(CosmeticsCommand())
 
         commandHandler.register(TranslationsCommands(this.playerDataManager))
         commandHandler.register(SaveTheKweebecsCommand())
@@ -117,6 +126,7 @@ public class SaveTheKweebecs : ThankmasPlugin<SaveTheKweebecsPlayerData>(listOf(
             player.arena() == null
         })
 
+        RegionControllerTask().runTaskTimer(this, 0L, 1L)
         soundManager.runTaskTimer(instance(), 0L, 2L)
 
         Bukkit.getScoreboardManager().mainScoreboard.teams.forEach { it.unregister() }

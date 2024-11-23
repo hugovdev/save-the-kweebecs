@@ -5,6 +5,8 @@ import com.infernalsuite.aswm.api.world.SlimeWorld
 import me.hugo.thankmas.config.string
 import me.hugo.thankmas.location.MapPoint
 import me.hugo.thankmas.markers.registry.MarkerRegistry
+import me.hugo.thankmas.region.WeakRegion
+import me.hugo.thankmas.region.types.JumpPadRegion
 import me.hugo.thankmas.savethekweebecs.SaveTheKweebecs
 import me.hugo.thankmas.savethekweebecs.game.arena.Arena
 import me.hugo.thankmas.savethekweebecs.game.arena.ArenaRegistry
@@ -87,6 +89,9 @@ public class ArenaMap(mapsConfig: FileConfiguration, private val configName: Str
     public lateinit var kidnappedSpawnpoints: List<MapPoint>
         private set
 
+    public lateinit var weakRegions: List<WeakRegion>
+        private set
+
     init {
         val main = SaveTheKweebecs.instance()
 
@@ -119,6 +124,8 @@ public class ArenaMap(mapsConfig: FileConfiguration, private val configName: Str
             lobbySpawnpoint = markerRegistry.getMarkerForType("lobby_spawnpoint", slimeFileName).first().location
             spectatorSpawnpoint =
                 markerRegistry.getMarkerForType("spectator_spawnpoint", slimeFileName).first().location
+
+            weakRegions = markerRegistry.getMarkerForType("jump_pad", slimeFileName).map { JumpPadRegion(it) }
 
             main.logger.info("Map ${this.configName} has been loaded correctly and is now valid!")
 
