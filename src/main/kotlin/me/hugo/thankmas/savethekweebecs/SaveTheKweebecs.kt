@@ -74,7 +74,7 @@ public class SaveTheKweebecs : ThankmasPlugin<SaveTheKweebecsPlayerData>(listOf(
             scopeWorld,
             Bukkit.getWorldContainer().resolve(hubWorldName).also { it.mkdirs() })
 
-        anvilWorldRegistry.getOrLoadWithMarkers(hubWorldName)
+        anvilWorldRegistry.loadMarkers(hubWorldName)
     }
 
     override fun onEnable() {
