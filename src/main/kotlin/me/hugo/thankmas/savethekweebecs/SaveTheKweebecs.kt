@@ -9,7 +9,6 @@ import me.hugo.thankmas.items.itemsets.ItemSetRegistry
 import me.hugo.thankmas.listener.PlayerDataLoader
 import me.hugo.thankmas.listener.PlayerLocaleDetector
 import me.hugo.thankmas.listener.PlayerSpawnpointOnJoin
-import me.hugo.thankmas.markers.registry.MarkerRegistry
 import me.hugo.thankmas.player.PlayerDataManager
 import me.hugo.thankmas.player.rank.PlayerGroupChange
 import me.hugo.thankmas.savethekweebecs.commands.LobbyCommand
@@ -24,6 +23,7 @@ import me.hugo.thankmas.savethekweebecs.player.SaveTheKweebecsPlayerData
 import me.hugo.thankmas.savethekweebecs.task.GameRegionControllerTask
 import me.hugo.thankmas.savethekweebecs.team.TeamRegistry
 import me.hugo.thankmas.scoreboard.ScoreboardTemplateManager
+import me.hugo.thankmas.world.AnvilWorldRegistry
 import org.bukkit.Bukkit
 import org.koin.core.component.inject
 import org.koin.core.context.loadKoinModules
@@ -33,7 +33,7 @@ import revxrsal.commands.bukkit.BukkitCommandHandler
 
 public class SaveTheKweebecs : ThankmasPlugin<SaveTheKweebecsPlayerData>(listOf("save_the_kweebecs")) {
 
-    private val markerRegistry: MarkerRegistry by inject()
+    private val anvilWorldRegistry: AnvilWorldRegistry by inject()
     private val spawnpointOnJoin: PlayerSpawnpointOnJoin by inject { parametersOf(hubWorldName, "lobby_spawnpoint") }
     private val soundManager: SoundManager by inject()
 
@@ -74,7 +74,7 @@ public class SaveTheKweebecs : ThankmasPlugin<SaveTheKweebecsPlayerData>(listOf(
             scopeWorld,
             Bukkit.getWorldContainer().resolve(hubWorldName).also { it.mkdirs() })
 
-        markerRegistry.loadWorldMarkers(hubWorldName)
+        anvilWorldRegistry.getOrLoadWithMarkers(hubWorldName)
     }
 
     override fun onEnable() {

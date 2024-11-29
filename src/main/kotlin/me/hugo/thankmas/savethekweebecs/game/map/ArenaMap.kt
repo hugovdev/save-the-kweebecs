@@ -4,7 +4,6 @@ import com.infernalsuite.aswm.api.exceptions.SlimeException
 import com.infernalsuite.aswm.api.world.SlimeWorld
 import me.hugo.thankmas.config.string
 import me.hugo.thankmas.location.MapPoint
-import me.hugo.thankmas.markers.registry.MarkerRegistry
 import me.hugo.thankmas.region.WeakRegion
 import me.hugo.thankmas.region.types.MushroomJumpPad
 import me.hugo.thankmas.savethekweebecs.SaveTheKweebecs
@@ -35,7 +34,6 @@ public class ArenaMap(mapsConfig: FileConfiguration, private val configName: Str
     private val slimeWorldRegistry: SlimeWorldRegistry by inject()
 
     private val teamRegistry: TeamRegistry by inject()
-    private val markerRegistry: MarkerRegistry by inject()
 
     /** SlimeWorld to be cloned by every Arena. */
     public val slimeWorld: SlimeWorld
@@ -105,7 +103,7 @@ public class ArenaMap(mapsConfig: FileConfiguration, private val configName: Str
 
             // Load the markers and the slime world.
             try {
-                markerRegistry.loadSlimeWorldMarkers(slimeFileName)
+                slimeWorldRegistry.getOrLoadWithMarkers(slimeFileName)
             } catch (e: SlimeException) {
                 main.logger.info("There was a problem trying to load the world: $slimeFileName")
                 e.printStackTrace()
@@ -115,17 +113,17 @@ public class ArenaMap(mapsConfig: FileConfiguration, private val configName: Str
             main.logger.info("Fetching marker data...")
 
             attackerSpawnpoints =
-                markerRegistry.getMarkerForType("attacker_spawnpoint", slimeFileName).map { it.location }
+                slimeWorldRegistry.getMarkerForType(slimeFileName, "attacker_spawnpoint").map { it.location }
             defenderSpawnpoints =
-                markerRegistry.getMarkerForType("defender_spawnpoint", slimeFileName).map { it.location }
+                slimeWorldRegistry.getMarkerForType(slimeFileName, "defender_spawnpoint").map { it.location }
             kidnappedSpawnpoints =
-                markerRegistry.getMarkerForType("kidnapped_spawnpoint", slimeFileName).map { it.location }
+                slimeWorldRegistry.getMarkerForType(slimeFileName, "kidnapped_spawnpoint").map { it.location }
 
-            lobbySpawnpoint = markerRegistry.getMarkerForType("lobby_spawnpoint", slimeFileName).first().location
+            lobbySpawnpoint = slimeWorldRegistry.getMarkerForType(slimeFileName, "lobby_spawnpoint").first().location
             spectatorSpawnpoint =
-                markerRegistry.getMarkerForType("spectator_spawnpoint", slimeFileName).first().location
+                slimeWorldRegistry.getMarkerForType(slimeFileName, "spectator_spawnpoint").first().location
 
-            weakRegions = markerRegistry.getMarkerForType("jump_pad", slimeFileName).map { MushroomJumpPad(it) }
+            weakRegions = slimeWorldRegistry.getMarkerForType(slimeFileName, "jump_pad").map { MushroomJumpPad(it) }
 
             main.logger.info("Map ${this.configName} has been loaded correctly and is now valid!")
 
