@@ -2,6 +2,7 @@ package me.hugo.thankmas.savethekweebecs.game.arena
 
 import dev.kezz.miniphrase.MiniPhraseContext
 import dev.kezz.miniphrase.audience.sendTranslated
+import live.minehub.polarpaper.Config
 import live.minehub.polarpaper.Polar
 import me.hugo.thankmas.items.TranslatableItem
 import me.hugo.thankmas.items.itemsets.ItemSetRegistry
@@ -107,14 +108,14 @@ public class Arena(public val arenaMap: ArenaMap, public val displayName: String
             return
         }
 
-        val playerData = player.playerData() ?: return
+        val playerData = player.playerData()
 
         if (playerData.currentArena != null) {
             player.sendTranslated("arena.join.alreadyInArena")
             return
         }
 
-        val lobbyLocation = arenaMap.lobbySpawnpoint.toLocation(world) ?: return
+        val lobbyLocation = arenaMap.lobbySpawnpoint.toLocation(world)
 
         player.reset(GameMode.ADVENTURE)
         player.teleport(lobbyLocation)
@@ -198,7 +199,20 @@ public class Arena(public val arenaMap: ArenaMap, public val displayName: String
 
         val arenaName = uuid.toString()
 
-        Polar.loadWorld(arenaMap.polarWorld, arenaName)
+        Polar.loadWorld(
+            arenaMap.polarWorld, arenaName, Config(
+                "file",
+                false,
+                false,
+                arenaMap.lobbySpawnpoint.toLocation(null),
+                Difficulty.NORMAL,
+                false,
+                false,
+                true,
+                WorldType.NORMAL,
+                World.Environment.NORMAL
+            )
+        )
 
         val newWorld = requireNotNull(Bukkit.getWorld(arenaName))
         { "Arena $uuid couldn't generate its world correctly!" }

@@ -12,8 +12,7 @@ paperweight.reobfArtifactConfiguration = ReobfArtifactConfiguration.MOJANG_PRODU
 dependencies {
     paperweight.paperDevBundle(libs.versions.paper)
     compileOnly(libs.luck.perms)
-    compileOnly(libs.aswm)
-    compileOnly(files("C:/Users/hugov/IdeaProjects/thankmas/common-paper/libs/PaperPolar.jar"))
+    compileOnly(libs.polar.paper)
 
     // Citizens API
     compileOnly(libs.citizens) {
