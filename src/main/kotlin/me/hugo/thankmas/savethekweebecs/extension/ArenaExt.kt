@@ -26,15 +26,15 @@ private val soundManager: SoundManager by KoinJavaComponent.inject(SoundManager:
 context(MiniPhraseContext)
 public fun Arena.start() {
     if (this.teamPlayers().size < arenaMap.minPlayers) {
-        arenaTime = arenaMap.defaultCountdown
-        arenaState = ArenaState.WAITING
+        time = arenaMap.defaultCountdown
+        state = ArenaState.WAITING
 
         announceTranslation("arena.notEnoughPeople")
         return
     }
 
-    arenaTime = 300
-    arenaState = ArenaState.IN_GAME
+    time = 300
+    state = ArenaState.IN_GAME
 
     playersPerTeam.forEach { (team, players) ->
         var spawnPointIndex = 0
@@ -84,8 +84,8 @@ public fun Arena.start() {
 
 public fun Arena.end(winnerTeam: MapTeam) {
     this.winnerTeam = winnerTeam
-    this.arenaTime = 10
-    this.arenaState = ArenaState.FINISHING
+    this.time = 10
+    this.state = ArenaState.FINISHING
 
     // Remove any ender pearls to avoid any delayed teleports.
     this.world.entities.filterIsInstance<Projectile>().forEach { it.remove() }
@@ -117,7 +117,7 @@ public fun Arena.end(winnerTeam: MapTeam) {
 }
 
 public fun Arena.reset() {
-    arenaState = ArenaState.RESETTING
+    state = ArenaState.RESETTING
 
     arenaPlayers().mapNotNull { it.player() }.forEach { player ->
         player.playerData().apply {
@@ -149,9 +149,9 @@ public fun Arena.playSound(sound: Sound) {
 }
 
 public fun Arena.hasStarted(): Boolean {
-    return this.arenaState != ArenaState.WAITING && this.arenaState != ArenaState.STARTING
+    return this.state != ArenaState.WAITING && this.state != ArenaState.STARTING
 }
 
 public fun Arena.isInGame(): Boolean {
-    return this.arenaState == ArenaState.IN_GAME
+    return this.state == ArenaState.IN_GAME
 }

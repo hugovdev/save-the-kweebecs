@@ -48,12 +48,12 @@ public class GameControllerTask : TranslatedComponent, BukkitRunnable() {
             }
 
         arenaRegistry.getValues().forEach { arena ->
-            val arenaState = arena.arenaState
+            val arenaState = arena.state
             if (arenaState == ArenaState.WAITING || arenaState == ArenaState.RESETTING) return@forEach
 
-            arena.arenaTime--
+            arena.time--
 
-            val time = arena.arenaTime
+            val time = arena.time
 
             if (time == 0) {
                 when (arenaState) {
@@ -65,7 +65,7 @@ public class GameControllerTask : TranslatedComponent, BukkitRunnable() {
                             event.eventRun.invoke(this, arena)
                             arena.eventIndex++
 
-                            arena.arenaMap.events.getOrNull(arena.eventIndex)?.second?.let { arena.arenaTime = it }
+                            arena.arenaMap.events.getOrNull(arena.eventIndex)?.second?.let { arena.time = it }
                             arena.updateBoard("next_event", "time")
                         } else arena.end(arena.arenaMap.defenderTeam)
                     }
@@ -105,7 +105,7 @@ public class GameControllerTask : TranslatedComponent, BukkitRunnable() {
      * respawning screen or respawns them if ready.
      */
     private fun respawnPlayers(arena: Arena) {
-        if (arena.arenaState == ArenaState.IN_GAME) {
+        if (arena.state == ArenaState.IN_GAME) {
             arena.deadPlayers.forEach deadPlayers@{ (player, secondsLeft) ->
                 val newTime = secondsLeft - 1
                 arena.deadPlayers[player] = newTime

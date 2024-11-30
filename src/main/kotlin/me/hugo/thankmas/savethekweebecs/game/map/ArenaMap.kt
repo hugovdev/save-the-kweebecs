@@ -1,7 +1,6 @@
 package me.hugo.thankmas.savethekweebecs.game.map
 
-import com.infernalsuite.aswm.api.exceptions.SlimeException
-import com.infernalsuite.aswm.api.world.SlimeWorld
+import live.minehub.polarpaper.PolarWorld
 import me.hugo.thankmas.config.string
 import me.hugo.thankmas.location.MapPoint
 import me.hugo.thankmas.region.WeakRegion
@@ -12,7 +11,7 @@ import me.hugo.thankmas.savethekweebecs.game.arena.ArenaRegistry
 import me.hugo.thankmas.savethekweebecs.game.events.ArenaEvent
 import me.hugo.thankmas.savethekweebecs.team.MapTeam
 import me.hugo.thankmas.savethekweebecs.team.TeamRegistry
-import me.hugo.thankmas.world.SlimeWorldRegistry
+import me.hugo.thankmas.world.PolarWorldRegistry
 import me.hugo.thankmas.world.s3.S3WorldSynchronizer
 import org.bukkit.Bukkit
 import org.bukkit.configuration.file.FileConfiguration
@@ -31,15 +30,15 @@ public class ArenaMap(mapsConfig: FileConfiguration, private val configName: Str
 
     private val arenaRegistry: ArenaRegistry by inject()
     private val s3WorldSynchronizer: S3WorldSynchronizer by inject()
-    private val slimeWorldRegistry: SlimeWorldRegistry by inject()
+    private val polarWorldRegistry: PolarWorldRegistry by inject()
 
     private val teamRegistry: TeamRegistry by inject()
 
     /** SlimeWorld to be cloned by every Arena. */
-    public val slimeWorld: SlimeWorld
-        get() = slimeWorldRegistry.get(slimeFileName)
+    public val polarWorld: PolarWorld
+        get() = polarWorldRegistry.get(polarFileName)
 
-    private val slimeFileName = mapsConfig.string("$configName.slime-world")
+    private val polarFileName = mapsConfig.string("$configName.polar-world")
 
     /** Name used to identify the map internally. */
     public var mapName: String = mapsConfig.getString("$configName.map-name") ?: configName
@@ -96,34 +95,36 @@ public class ArenaMap(mapsConfig: FileConfiguration, private val configName: Str
         main.logger.info("Loading map $configName...")
 
         Bukkit.getScheduler().runTaskAsynchronously(SaveTheKweebecs.instance(), Runnable {
-            s3WorldSynchronizer.downloadSlimeFile(
-                "save_the_kweebecs/$slimeFileName",
-                slimeWorldRegistry.slimeWorldContainer.resolve("$slimeFileName.slime")
+            if (!polarWorldRegistry.polarWorldContainer.exists()) polarWorldRegistry.polarWorldContainer.mkdirs()
+            s3WorldSynchronizer.downloadFile(
+                "save_the_kweebecs/$polarFileName",
+                "polar",
+                polarWorldRegistry.polarWorldContainer.resolve("$polarFileName.polar")
             )
 
-            // Load the markers and the slime world.
+            // Load the markers and the polar world.
             try {
-                slimeWorldRegistry.getOrLoadWithMarkers(slimeFileName)
-            } catch (e: SlimeException) {
-                main.logger.info("There was a problem trying to load the world: $slimeFileName")
+                polarWorldRegistry.getOrLoadWithMarkers(polarFileName)
+            } catch (e: Exception) {
+                main.logger.info("There was a problem trying to load the world: $polarFileName")
                 e.printStackTrace()
             }
 
-            main.logger.info("Slime map $slimeFileName was loaded successfully!")
+            main.logger.info("Polar map $polarFileName was loaded successfully!")
             main.logger.info("Fetching marker data...")
 
             attackerSpawnpoints =
-                slimeWorldRegistry.getMarkerForType(slimeFileName, "attacker_spawnpoint").map { it.location }
+                polarWorldRegistry.getMarkerForType(polarFileName, "attacker_spawnpoint").map { it.location }
             defenderSpawnpoints =
-                slimeWorldRegistry.getMarkerForType(slimeFileName, "defender_spawnpoint").map { it.location }
+                polarWorldRegistry.getMarkerForType(polarFileName, "defender_spawnpoint").map { it.location }
             kidnappedSpawnpoints =
-                slimeWorldRegistry.getMarkerForType(slimeFileName, "kidnapped_spawnpoint").map { it.location }
+                polarWorldRegistry.getMarkerForType(polarFileName, "kidnapped_spawnpoint").map { it.location }
 
-            lobbySpawnpoint = slimeWorldRegistry.getMarkerForType(slimeFileName, "lobby_spawnpoint").first().location
+            lobbySpawnpoint = polarWorldRegistry.getMarkerForType(polarFileName, "lobby_spawnpoint").first().location
             spectatorSpawnpoint =
-                slimeWorldRegistry.getMarkerForType(slimeFileName, "spectator_spawnpoint").first().location
+                polarWorldRegistry.getMarkerForType(polarFileName, "spectator_spawnpoint").first().location
 
-            weakRegions = slimeWorldRegistry.getMarkerForType(slimeFileName, "jump_pad").map { MushroomJumpPad(it) }
+            weakRegions = polarWorldRegistry.getMarkerForType(polarFileName, "jump_pad").map { MushroomJumpPad(it) }
 
             main.logger.info("Map ${this.configName} has been loaded correctly and is now valid!")
 
@@ -131,7 +132,7 @@ public class ArenaMap(mapsConfig: FileConfiguration, private val configName: Str
                 // Register a game for the arena by default!
                 Bukkit.getScheduler().runTask(SaveTheKweebecs.instance(), Runnable {
                     val arena = Arena(this, mapName)
-                    arenaRegistry.register(arena.arenaUUID, arena)
+                    arenaRegistry.register(arena.uuid, arena)
 
                     main.logger.info("Game in map ${this.configName} has been created and made available!")
                 })

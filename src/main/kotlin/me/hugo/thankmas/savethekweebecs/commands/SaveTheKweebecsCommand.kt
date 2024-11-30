@@ -77,14 +77,14 @@ public class SaveTheKweebecsCommand : TranslatedComponent {
             val unformattedString = (miniPhrase.translationRegistry["arena.list.member", sender.locale()]
                 ?: miniPhrase.translationRegistry["arena.list.member", miniPhrase.defaultLocale])?.replace(
                 "<arena_uuid>",
-                it.arenaUUID.toString()
+                it.uuid.toString()
             ) ?: return
 
             sender.sendMessage(
                 miniPhrase.miniMessage.deserialize(
                     unformattedString,
                     Placeholder.parsed("display_name", it.displayName),
-                    Placeholder.component("arena_state", it.arenaState.getFriendlyName(sender.locale())),
+                    Placeholder.component("arena_state", it.state.getFriendlyName(sender.locale())),
                     Placeholder.parsed("team_size", (it.arenaMap.maxPlayers / 2).toString()),
                     Placeholder.parsed("map_name", it.arenaMap.mapName),
                     Placeholder.parsed("current_players", it.teamPlayers().size.toString()),
@@ -163,7 +163,7 @@ public class SaveTheKweebecsCommand : TranslatedComponent {
     @Description("Sets the arena timer!")
     @CommandPermission("savethekweebecs.admin")
     private fun setHub(sender: Player, seconds: Int) {
-        sender.arena()?.arenaTime = seconds
+        sender.arena()?.time = seconds
     }
 
     @Subcommand("admin openarena")
@@ -172,7 +172,7 @@ public class SaveTheKweebecsCommand : TranslatedComponent {
     private fun createArena(sender: Player, map: ArenaMap, displayName: String) {
         val arena = Arena(map, displayName)
 
-        arenaRegistry.register(arena.arenaUUID, arena)
+        arenaRegistry.register(arena.uuid, arena)
 
         sender.sendMessage(
             Component.text(

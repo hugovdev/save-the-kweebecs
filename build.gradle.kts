@@ -13,6 +13,7 @@ dependencies {
     paperweight.paperDevBundle(libs.versions.paper)
     compileOnly(libs.luck.perms)
     compileOnly(libs.aswm)
+    compileOnly(files("C:/Users/hugov/IdeaProjects/thankmas/common-paper/libs/PaperPolar.jar"))
 
     // Citizens API
     compileOnly(libs.citizens) {

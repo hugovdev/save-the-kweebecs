@@ -15,6 +15,8 @@ import me.hugo.thankmas.savethekweebecs.commands.LobbyCommand
 import me.hugo.thankmas.savethekweebecs.commands.SaveTheKweebecsCommand
 import me.hugo.thankmas.savethekweebecs.dependencyinjection.SaveTheKweebecsModules
 import me.hugo.thankmas.savethekweebecs.extension.arena
+import me.hugo.thankmas.savethekweebecs.extension.hasStarted
+import me.hugo.thankmas.savethekweebecs.game.arena.ArenaRegistry
 import me.hugo.thankmas.savethekweebecs.game.map.MapRegistry
 import me.hugo.thankmas.savethekweebecs.listeners.ArenaListener
 import me.hugo.thankmas.savethekweebecs.listeners.TeamsPlayerChat
@@ -123,7 +125,8 @@ public class SaveTheKweebecs : ThankmasPlugin<SaveTheKweebecsPlayerData>(listOf(
 
         // Register luck perms events!
         PlayerGroupChange(this.playerDataManager, shouldUpdate = { player ->
-            player.arena() == null
+            val playerArena = player.arena()
+            playerArena == null || !playerArena.hasStarted()
         })
 
         GameRegionControllerTask().runTaskTimer(this, 0L, 1L)
@@ -138,8 +141,12 @@ public class SaveTheKweebecs : ThankmasPlugin<SaveTheKweebecsPlayerData>(listOf(
     override fun onDisable() {
         commandHandler.unregisterAllCommands()
 
-        Bukkit.getScoreboardManager().mainScoreboard.teams.forEach { it.unregister() }
-        Bukkit.getScoreboardManager().mainScoreboard.objectives.forEach { it.unregister() }
+        val arenaRegistry: ArenaRegistry by inject()
+
+        arenaRegistry.getValues().forEach {
+            Bukkit.unloadWorld(it.world, false)
+            it.world.worldFolder.deleteRecursively()
+        }
     }
 
 

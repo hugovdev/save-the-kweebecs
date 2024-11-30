@@ -32,7 +32,7 @@ public class KweebecScoreboardManager(instance: SaveTheKweebecs) :
 
         registerTag("count") { player, _ ->
             Tag.selfClosingInserting {
-                Component.text(player.arena()?.arenaTime ?: 0)
+                Component.text(player.arena()?.time ?: 0)
             }
         }
 
@@ -66,7 +66,7 @@ public class KweebecScoreboardManager(instance: SaveTheKweebecs) :
         registerTag("kills") { player, _ -> Tag.selfClosingInserting { Component.text(player.playerData().kills) } }
 
         registerTag("time") { player, _ ->
-            val totalSeconds = player.arena()?.arenaTime ?: 0
+            val totalSeconds = player.arena()?.time ?: 0
 
             val minutes = totalSeconds / 60
             val seconds = totalSeconds % 60

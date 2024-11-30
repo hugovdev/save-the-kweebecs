@@ -134,7 +134,7 @@ public class SaveTheKweebecsPlayerData(playerUUID: UUID, instance: SaveTheKweebe
 
         val arena = currentArena
         itemSetManager.giveSetNullable(
-            if (arena != null) arena.arenaState.itemSetKey else "lobby",
+            if (arena != null) arena.state.itemSetKey else "lobby",
             onlinePlayer,
             newLocale
         )

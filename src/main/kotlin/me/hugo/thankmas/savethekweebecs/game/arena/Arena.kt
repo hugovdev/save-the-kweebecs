@@ -1,9 +1,8 @@
 package me.hugo.thankmas.savethekweebecs.game.arena
 
-import com.infernalsuite.aswm.api.AdvancedSlimePaperAPI
-import com.infernalsuite.aswm.api.world.SlimeWorld
 import dev.kezz.miniphrase.MiniPhraseContext
 import dev.kezz.miniphrase.audience.sendTranslated
+import live.minehub.polarpaper.Polar
 import me.hugo.thankmas.items.TranslatableItem
 import me.hugo.thankmas.items.itemsets.ItemSetRegistry
 import me.hugo.thankmas.lang.TranslatedComponent
@@ -47,13 +46,11 @@ public class Arena(public val arenaMap: ArenaMap, public val displayName: String
     private val scoreboardManager: me.hugo.thankmas.savethekweebecs.scoreboard.KweebecScoreboardManager by inject()
     private val itemManager: ItemSetRegistry by inject()
 
-    public val arenaUUID: UUID = UUID.randomUUID()
-
-    private val slimeWorld: SlimeWorld? = arenaMap.slimeWorld.clone(arenaUUID.toString())
+    public val uuid: UUID = UUID.randomUUID()
 
     public lateinit var world: World
 
-    public var arenaState: ArenaState = ArenaState.RESETTING
+    public var state: ArenaState = ArenaState.RESETTING
         set(state) {
             field = state
 
@@ -63,7 +60,7 @@ public class Arena(public val arenaMap: ArenaMap, public val displayName: String
 
     public var winnerTeam: MapTeam? = null
 
-    public var arenaTime: Int = arenaMap.defaultCountdown
+    public var time: Int = arenaMap.defaultCountdown
 
     public var eventIndex: Int = 0
     public val currentEvent: ArenaEvent?
@@ -136,10 +133,10 @@ public class Arena(public val arenaMap: ArenaMap, public val displayName: String
             unparsed("max_players", arenaMap.maxPlayers.toString())
         }
 
-        itemManager.giveSetNullable(arenaState.itemSetKey, player)
+        itemManager.giveSetNullable(state.itemSetKey, player)
 
-        if (teamPlayers().size >= arenaMap.minPlayers && arenaState == ArenaState.WAITING)
-            arenaState = ArenaState.STARTING
+        if (teamPlayers().size >= arenaMap.minPlayers && state == ArenaState.WAITING)
+            state = ArenaState.STARTING
         else updateBoard("players", "max_players")
 
         setCurrentBoard(player)
@@ -170,7 +167,7 @@ public class Arena(public val arenaMap: ArenaMap, public val displayName: String
 
             playerData.currentTeam?.let { removePlayerFrom(player, it) }
 
-            if (arenaState != ArenaState.FINISHING && arenaState != ArenaState.RESETTING) {
+            if (state != ArenaState.FINISHING && state != ArenaState.RESETTING) {
                 val teamsWithPlayers = playersPerTeam.filter { it.value.isNotEmpty() }.map { it.key }
                 if (teamsWithPlayers.size == 1) this.end(teamsWithPlayers.first())
             }
@@ -189,7 +186,7 @@ public class Arena(public val arenaMap: ArenaMap, public val displayName: String
      * Creates a new world with the proper gamerule setup
      * and spawns/restores NPCs.
      *
-     * Also resets [arenaState], [arenaTime], [winnerTeam]
+     * Also resets [state], [time], [winnerTeam]
      * and [eventIndex].
      */
     public fun createWorld(firstTime: Boolean = true) {
@@ -199,30 +196,33 @@ public class Arena(public val arenaMap: ArenaMap, public val displayName: String
 
         if (!firstTime) Bukkit.unloadWorld(world, false)
 
-        AdvancedSlimePaperAPI.instance().loadWorld(slimeWorld, false)
+        val arenaName = uuid.toString()
 
-        val newWorld = Bukkit.getWorld(arenaUUID.toString()) ?: return
+        Polar.loadWorld(arenaMap.polarWorld, arenaName)
 
+        val newWorld = requireNotNull(Bukkit.getWorld(arenaName))
+        { "Arena $uuid couldn't generate its world correctly!" }
+
+        newWorld.setGameRule(GameRule.RANDOM_TICK_SPEED, 0)
         newWorld.setGameRule(GameRule.SPECTATORS_GENERATE_CHUNKS, false)
         newWorld.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, false)
         newWorld.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false)
         newWorld.setGameRule(GameRule.DO_WEATHER_CYCLE, false)
         newWorld.setGameRule(GameRule.DO_MOB_SPAWNING, false)
         newWorld.setGameRule(GameRule.DO_FIRE_TICK, false)
-        newWorld.setGameRule(GameRule.RANDOM_TICK_SPEED, 0)
 
         newWorld.time = arenaMap.time
 
         world = newWorld
 
-        if (firstTime) arenaMap.kidnappedSpawnpoints.forEach { remainingNPCs[createKweebecNPC(it)] = false }
+        if (firstTime) arenaMap.kidnappedSpawnpoints.forEach { remainingNPCs[createKidnappedNPC(it)] = false }
         else remainingNPCs.keys.forEach {
             remainingNPCs[it] = false
             it.spawn(it.storedLocation.toLocation(world))
         }
 
-        arenaState = ArenaState.WAITING
-        arenaTime = arenaMap.defaultCountdown
+        state = ArenaState.WAITING
+        time = arenaMap.defaultCountdown
         winnerTeam = null
         eventIndex = 0
     }
@@ -230,7 +230,7 @@ public class Arena(public val arenaMap: ArenaMap, public val displayName: String
     /**
      * Creates an NPC in [mapPoint] for this arena.
      */
-    private fun createKweebecNPC(mapPoint: MapPoint): NPC {
+    private fun createKidnappedNPC(mapPoint: MapPoint): NPC {
         val attackerTeam = arenaMap.attackerTeam
         val npc = CitizensAPI.getNPCRegistry().createNPC(EntityType.PLAYER, "")
 
@@ -238,7 +238,7 @@ public class Arena(public val arenaMap: ArenaMap, public val displayName: String
         npc.data().setPersistent(NPC.Metadata.NAMEPLATE_VISIBLE, false)
         npc.data().setPersistent(NPC.Metadata.ALWAYS_USE_NAME_HOLOGRAM, true)
 
-        npc.data().setPersistent("arena", arenaUUID.toString())
+        npc.data().setPersistent("arena", uuid.toString())
 
         val visualToUse = attackerTeam.skins.random()
 
@@ -283,10 +283,10 @@ public class Arena(public val arenaMap: ArenaMap, public val displayName: String
 
     /**
      * Updates [player]'s scoreboard to the one that
-     * is being used in the current [arenaState].
+     * is being used in the current [state].
      */
     private fun setCurrentBoard(player: Player) {
-        scoreboardManager.getTemplate(arenaState.name.lowercase()).printBoard(player)
+        scoreboardManager.getTemplate(state.name.lowercase()).printBoard(player)
     }
 
     /**
@@ -347,17 +347,17 @@ public class Arena(public val arenaMap: ArenaMap, public val displayName: String
      */
     context(MiniPhraseContext)
     public fun getCurrentIcon(locale: Locale): ItemStack = TranslatableItem(
-        material = arenaState.material,
+        material = state.material,
         name = "menu.arenas.arenaIcon.name",
         lore = "menu.arenas.arenaIcon.lore"
     ).buildItem(locale) {
         unparsed("display_name", displayName)
-        inserting("arena_state", arenaState.getFriendlyName(locale))
+        inserting("arena_state", state.getFriendlyName(locale))
         unparsed("map_name", arenaMap.mapName)
         unparsed("team_size", (arenaMap.maxPlayers / 2).toString())
         unparsed("current_players", teamPlayers().size.toString())
         unparsed("max_players", arenaMap.maxPlayers.toString())
-        unparsed("arena_short_uuid", arenaUUID.toString().split("-").first())
+        unparsed("arena_short_uuid", uuid.toString().split("-").first())
     }
 
 }
