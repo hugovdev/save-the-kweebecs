@@ -25,7 +25,7 @@ import me.hugo.thankmas.savethekweebecs.player.SaveTheKweebecsPlayerData
 import me.hugo.thankmas.savethekweebecs.task.GameRegionControllerTask
 import me.hugo.thankmas.savethekweebecs.team.TeamRegistry
 import me.hugo.thankmas.scoreboard.ScoreboardTemplateManager
-import me.hugo.thankmas.world.AnvilWorldRegistry
+import me.hugo.thankmas.world.registry.AnvilWorldRegistry
 import org.bukkit.Bukkit
 import org.koin.core.component.inject
 import org.koin.core.context.loadKoinModules

@@ -11,7 +11,7 @@ import me.hugo.thankmas.savethekweebecs.game.arena.ArenaRegistry
 import me.hugo.thankmas.savethekweebecs.game.events.ArenaEvent
 import me.hugo.thankmas.savethekweebecs.team.MapTeam
 import me.hugo.thankmas.savethekweebecs.team.TeamRegistry
-import me.hugo.thankmas.world.PolarWorldRegistry
+import me.hugo.thankmas.world.registry.PolarWorldRegistry
 import me.hugo.thankmas.world.s3.S3WorldSynchronizer
 import org.bukkit.Bukkit
 import org.bukkit.configuration.file.FileConfiguration
