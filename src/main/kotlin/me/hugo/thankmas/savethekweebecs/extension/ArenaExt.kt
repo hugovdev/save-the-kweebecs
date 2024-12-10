@@ -3,6 +3,7 @@ package me.hugo.thankmas.savethekweebecs.extension
 import dev.kezz.miniphrase.MiniPhraseContext
 import dev.kezz.miniphrase.audience.sendTranslated
 import dev.kezz.miniphrase.tag.TagResolverBuilder
+import me.hugo.thankmas.music.MusicManager
 import me.hugo.thankmas.player.playSound
 import me.hugo.thankmas.player.player
 import me.hugo.thankmas.player.reset
@@ -10,7 +11,6 @@ import me.hugo.thankmas.player.showTitle
 import me.hugo.thankmas.savethekweebecs.game.arena.Arena
 import me.hugo.thankmas.savethekweebecs.game.arena.ArenaState
 import me.hugo.thankmas.savethekweebecs.game.map.MapRegistry
-import me.hugo.thankmas.savethekweebecs.music.SoundManager
 import me.hugo.thankmas.savethekweebecs.team.MapTeam
 import net.kyori.adventure.title.Title
 import org.bukkit.GameMode
@@ -21,7 +21,7 @@ import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
 
 private val mapRegistry: MapRegistry by KoinJavaComponent.inject(MapRegistry::class.java)
-private val soundManager: SoundManager by KoinJavaComponent.inject(SoundManager::class.java)
+private val musicManager: MusicManager by KoinJavaComponent.inject(MusicManager::class.java)
 
 context(MiniPhraseContext)
 public fun Arena.start() {
@@ -69,7 +69,7 @@ public fun Arena.start() {
             teamPlayer.inventory.helmet = selectedSkin.displayItem.buildItem(teamPlayer)
             playerData.setSkin(selectedSkin.skin)
 
-            soundManager.playTrack(SoundManager.IN_GAME_MUSIC, teamPlayer)
+            musicManager.playTrack(MusicManager.IN_GAME_MUSIC, teamPlayer)
 
             spawnPointIndex++
 
@@ -94,8 +94,8 @@ public fun Arena.end(winnerTeam: MapTeam) {
         players.mapNotNull { it.player() }.forEach { teamPlayer ->
             teamPlayer.reset(GameMode.ADVENTURE)
 
-            soundManager.stopTrack(teamPlayer)
-            soundManager.playSoundEffect("save_the_kweebecs.victory", teamPlayer)
+            musicManager.stopTrack(teamPlayer)
+            musicManager.playSoundEffect("save_the_kweebecs.victory", teamPlayer)
 
             teamPlayer.showTitle(
                 if (winnerTeam == teamPlayer.playerData().currentTeam) "arena.win.title"

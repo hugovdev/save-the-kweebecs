@@ -4,13 +4,13 @@ import com.destroystokyo.paper.MaterialSetTag
 import com.destroystokyo.paper.MaterialTags
 import com.destroystokyo.paper.event.player.PlayerPickupExperienceEvent
 import me.hugo.thankmas.lang.TranslatedComponent
+import me.hugo.thankmas.music.MusicManager
 import me.hugo.thankmas.player.player
 import me.hugo.thankmas.player.showTitle
 import me.hugo.thankmas.savethekweebecs.SaveTheKweebecs
 import me.hugo.thankmas.savethekweebecs.extension.*
 import me.hugo.thankmas.savethekweebecs.game.arena.Arena
 import me.hugo.thankmas.savethekweebecs.game.arena.ArenaRegistry
-import me.hugo.thankmas.savethekweebecs.music.SoundManager
 import me.hugo.thankmas.savethekweebecs.player.SaveTheKweebecsPlayerData
 import net.citizensnpcs.api.CitizensAPI
 import net.citizensnpcs.api.event.NPCRightClickEvent
@@ -43,7 +43,7 @@ import kotlin.time.toJavaDuration
 public class ArenaListener : TranslatedComponent, Listener {
 
     private val arenaRegistry: ArenaRegistry by inject()
-    private val soundManager: SoundManager by inject()
+    private val musicManager: MusicManager by inject()
 
     private companion object {
         private val BREAKABLE_ATTACKER_BLOCKS = MaterialSetTag(NamespacedKey("stk", "attacker_breakable"))
@@ -133,7 +133,7 @@ public class ArenaListener : TranslatedComponent, Listener {
 
                     attackerData.kills++
 
-                    soundManager.playSoundEffect("save_the_kweebecs.kill", attacker)
+                    musicManager.playSoundEffect("save_the_kweebecs.kill", attacker)
 
                     player.world.playSound(player.location, Sound.ENTITY_GENERIC_HURT, 1.0f, 1.0f)
                     player.world.playSound(player.location, Sound.ENTITY_PLAYER_ATTACK_CRIT, 1.0f, 1.0f)
@@ -185,7 +185,7 @@ public class ArenaListener : TranslatedComponent, Listener {
             val location = npc.storedLocation
 
             if (arena.remainingNPCs.any { !it.value }) {
-                soundManager.playSoundEffect(
+                musicManager.playSoundEffect(
                     "save_the_kweebecs.kweebec_saved",
                     player
                 )

@@ -5,6 +5,7 @@ import dev.kezz.miniphrase.audience.sendTranslated
 import me.hugo.thankmas.database.PlayerData
 import me.hugo.thankmas.items.itemsets.ItemSetRegistry
 import me.hugo.thankmas.lang.TranslatedComponent
+import me.hugo.thankmas.music.MusicManager
 import me.hugo.thankmas.player.cosmetics.CosmeticsPlayerData
 import me.hugo.thankmas.player.player
 import me.hugo.thankmas.player.translate
@@ -15,7 +16,6 @@ import me.hugo.thankmas.savethekweebecs.extension.hasStarted
 import me.hugo.thankmas.savethekweebecs.extension.playerData
 import me.hugo.thankmas.savethekweebecs.game.arena.Arena
 import me.hugo.thankmas.savethekweebecs.game.map.MapRegistry
-import me.hugo.thankmas.savethekweebecs.music.SoundManager
 import me.hugo.thankmas.savethekweebecs.scoreboard.KweebecScoreboardManager
 import me.hugo.thankmas.savethekweebecs.team.MapTeam
 import net.kyori.adventure.text.Component
@@ -36,7 +36,7 @@ public class SaveTheKweebecsPlayerData(playerUUID: UUID, instance: SaveTheKweebe
         it.playerData().currentArena == null
     }), TranslatedComponent {
 
-    private val soundManager: SoundManager by inject()
+    private val musicManager: MusicManager by inject()
     private val mapRegistry: MapRegistry by inject()
     private val scoreboardManager: KweebecScoreboardManager by inject()
 
@@ -182,7 +182,7 @@ public class SaveTheKweebecsPlayerData(playerUUID: UUID, instance: SaveTheKweebe
         super.onSave(player)
 
         currentArena?.leave(player, true)
-        soundManager.stopTrack(player)
+        musicManager.stopTrack(player)
     }
 
     public fun resetSkin() {

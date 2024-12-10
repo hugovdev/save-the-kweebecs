@@ -9,6 +9,7 @@ import me.hugo.thankmas.items.itemsets.ItemSetRegistry
 import me.hugo.thankmas.listener.PlayerDataLoader
 import me.hugo.thankmas.listener.PlayerLocaleDetector
 import me.hugo.thankmas.listener.PlayerSpawnpointOnJoin
+import me.hugo.thankmas.music.MusicManager
 import me.hugo.thankmas.player.PlayerDataManager
 import me.hugo.thankmas.player.rank.PlayerGroupChange
 import me.hugo.thankmas.savethekweebecs.commands.LobbyCommand
@@ -20,7 +21,6 @@ import me.hugo.thankmas.savethekweebecs.game.arena.ArenaRegistry
 import me.hugo.thankmas.savethekweebecs.game.map.MapRegistry
 import me.hugo.thankmas.savethekweebecs.listeners.ArenaListener
 import me.hugo.thankmas.savethekweebecs.listeners.TeamsPlayerChat
-import me.hugo.thankmas.savethekweebecs.music.SoundManager
 import me.hugo.thankmas.savethekweebecs.player.SaveTheKweebecsPlayerData
 import me.hugo.thankmas.savethekweebecs.task.GameRegionControllerTask
 import me.hugo.thankmas.savethekweebecs.team.TeamRegistry
@@ -37,7 +37,7 @@ public class SaveTheKweebecs : ThankmasPlugin<SaveTheKweebecsPlayerData>(listOf(
 
     private val anvilWorldRegistry: AnvilWorldRegistry by inject()
     private val spawnpointOnJoin: PlayerSpawnpointOnJoin by inject { parametersOf(hubWorldName, "lobby_spawnpoint") }
-    private val soundManager: SoundManager by inject()
+    private val musicManager: MusicManager by inject()
 
     override val scoreboardTemplateManager: ScoreboardTemplateManager<SaveTheKweebecsPlayerData> by inject {
         parametersOf(
@@ -130,7 +130,7 @@ public class SaveTheKweebecs : ThankmasPlugin<SaveTheKweebecsPlayerData>(listOf(
         })
 
         GameRegionControllerTask().runTaskTimer(this, 0L, 1L)
-        soundManager.runTaskTimer(instance(), 0L, 2L)
+        musicManager.runTaskTimer(instance(), 0L, 2L)
 
         Bukkit.getScoreboardManager().mainScoreboard.teams.forEach { it.unregister() }
         Bukkit.getScoreboardManager().mainScoreboard.objectives.forEach { it.unregister() }

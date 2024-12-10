@@ -3,11 +3,11 @@ package me.hugo.thankmas.savethekweebecs.game.map
 import me.hugo.thankmas.config.ConfigurationProvider
 import me.hugo.thankmas.items.itemsets.ItemSetRegistry
 import me.hugo.thankmas.listener.PlayerSpawnpointOnJoin
+import me.hugo.thankmas.music.MusicManager
 import me.hugo.thankmas.player.reset
 import me.hugo.thankmas.registry.AutoCompletableMapRegistry
 import me.hugo.thankmas.savethekweebecs.SaveTheKweebecs
 import me.hugo.thankmas.savethekweebecs.extension.playerData
-import me.hugo.thankmas.savethekweebecs.music.SoundManager
 import me.hugo.thankmas.savethekweebecs.scoreboard.KweebecScoreboardManager
 import me.hugo.thankmas.savethekweebecs.task.GameControllerTask
 import org.bukkit.GameMode
@@ -23,7 +23,7 @@ public class MapRegistry : AutoCompletableMapRegistry<ArenaMap>(ArenaMap::class.
     private val main: SaveTheKweebecs = SaveTheKweebecs.instance()
 
     private val itemManager: ItemSetRegistry by inject()
-    private val soundManager: SoundManager by inject()
+    private val musicManager: MusicManager by inject()
     private val scoreboardManager: KweebecScoreboardManager by inject()
 
     private val configProvider: ConfigurationProvider by inject()
@@ -55,7 +55,7 @@ public class MapRegistry : AutoCompletableMapRegistry<ArenaMap>(ArenaMap::class.
         }
 
         player.playerData().giveCosmetic()
-        soundManager.stopTrack(player)
+        musicManager.stopTrack(player)
 
         scoreboardManager.getTemplate("lobby").printBoard(player)
         itemManager.giveSet("lobby", player)
