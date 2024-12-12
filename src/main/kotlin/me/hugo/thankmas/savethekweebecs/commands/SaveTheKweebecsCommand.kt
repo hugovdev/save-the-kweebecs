@@ -56,7 +56,7 @@ public class SaveTheKweebecsCommand : TranslatedComponent {
     @Subcommand("arenas")
     @Description("Opens an arena selector menu!")
     private fun openArenasMenu(sender: Player) {
-        // mapRegistry.openArenasMenu(sender)
+        mapRegistry.openArenasMenu(sender)
     }
 
     @Subcommand("transformations")

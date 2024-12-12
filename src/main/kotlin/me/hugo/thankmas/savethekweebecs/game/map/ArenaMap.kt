@@ -2,6 +2,7 @@ package me.hugo.thankmas.savethekweebecs.game.map
 
 import live.minehub.polarpaper.PolarWorld
 import me.hugo.thankmas.config.string
+import me.hugo.thankmas.items.TranslatableItem
 import me.hugo.thankmas.location.MapPoint
 import me.hugo.thankmas.region.WeakRegion
 import me.hugo.thankmas.region.types.MushroomJumpPad
@@ -28,6 +29,7 @@ import org.koin.core.component.inject
  */
 public class ArenaMap(mapsConfig: FileConfiguration, private val configName: String) : KoinComponent {
 
+    private val mapRegistry: MapRegistry by inject()
     private val arenaRegistry: ArenaRegistry by inject()
     private val s3WorldSynchronizer: S3WorldSynchronizer by inject()
     private val polarWorldRegistry: PolarWorldRegistry by inject()
@@ -69,6 +71,12 @@ public class ArenaMap(mapsConfig: FileConfiguration, private val configName: Str
 
     /** Whether a game in this map should become available when loaded. */
     public val isAvailable: Boolean = mapsConfig.getBoolean("$configName.available", true)
+
+    /** Item used for the map selector menu in STK. */
+    public val mapSelectorIcon: TranslatableItem = TranslatableItem(mapsConfig, "$configName.selector-icon")
+
+    /** Where in the map selector menu does this map go. */
+    public val mapSelectorSlot: Int = mapsConfig.getInt("$configName.selector-slot", -1)
 
     /** Locations for the waiting lobby and spectator spawnpoint. */
     public lateinit var lobbySpawnpoint: MapPoint
@@ -133,6 +141,8 @@ public class ArenaMap(mapsConfig: FileConfiguration, private val configName: Str
                 Bukkit.getScheduler().runTask(SaveTheKweebecs.instance(), Runnable {
                     val arena = Arena(this, mapName)
                     arenaRegistry.register(arena.uuid, arena)
+
+                    mapRegistry.addMenuIcon(arena)
 
                     main.logger.info("Game in map ${this.configName} has been created and made available!")
                 })

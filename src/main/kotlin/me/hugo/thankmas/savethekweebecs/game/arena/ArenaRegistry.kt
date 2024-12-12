@@ -5,12 +5,4 @@ import org.koin.core.annotation.Single
 import java.util.*
 
 @Single
-public class ArenaRegistry : MapBasedRegistry<UUID, Arena>() {
-
-    override fun register(key: UUID, value: Arena, replace: Boolean) {
-        super.register(key, value, replace)
-
-        // TODO: Update blah blah blah
-    }
-
-}
+public class ArenaRegistry : MapBasedRegistry<UUID, Arena>()

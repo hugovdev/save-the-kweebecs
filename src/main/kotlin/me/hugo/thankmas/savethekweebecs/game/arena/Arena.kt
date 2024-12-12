@@ -20,6 +20,7 @@ import me.hugo.thankmas.savethekweebecs.game.events.ArenaEvent
 import me.hugo.thankmas.savethekweebecs.game.map.ArenaMap
 import me.hugo.thankmas.savethekweebecs.game.map.MapRegistry
 import me.hugo.thankmas.savethekweebecs.team.MapTeam
+import me.hugo.thankmas.state.StatefulValue
 import net.citizensnpcs.api.CitizensAPI
 import net.citizensnpcs.api.npc.NPC
 import net.citizensnpcs.api.trait.trait.Equipment
@@ -55,9 +56,13 @@ public class Arena(public val arenaMap: ArenaMap, public val displayName: String
         set(state) {
             field = state
 
+            iconToken.value = UUID.randomUUID()
             if (state == ArenaState.RESETTING) return
             arenaPlayers().mapNotNull { it.player() }.forEach { setCurrentBoard(it) }
         }
+
+    /** UUID that changes every time the arenas menu should update this map's icon. */
+    public val iconToken: StatefulValue<UUID> = StatefulValue(UUID.randomUUID())
 
     public var winnerTeam: MapTeam? = null
 
@@ -141,6 +146,8 @@ public class Arena(public val arenaMap: ArenaMap, public val displayName: String
         else updateBoard("players", "max_players")
 
         setCurrentBoard(player)
+
+        iconToken.value = UUID.randomUUID()
     }
 
     /**
@@ -178,6 +185,8 @@ public class Arena(public val arenaMap: ArenaMap, public val displayName: String
             playerData.currentArena = null
             mapRegistry.sendToHub(player)
         }
+
+        iconToken.value = UUID.randomUUID()
     }
 
     /**
@@ -210,7 +219,8 @@ public class Arena(public val arenaMap: ArenaMap, public val displayName: String
                 false,
                 true,
                 WorldType.NORMAL,
-                World.Environment.NORMAL
+                World.Environment.NORMAL,
+                emptyList()
             )
         )
 
@@ -354,24 +364,4 @@ public class Arena(public val arenaMap: ArenaMap, public val displayName: String
         playersPerTeam[team]?.remove(uuid)
         uuid.playerData().currentTeam = null
     }
-
-    /**
-     * Creates an ItemStack that represents
-     * the arena in [locale] language.
-     */
-    context(MiniPhraseContext)
-    public fun getCurrentIcon(locale: Locale): ItemStack = TranslatableItem(
-        material = state.material,
-        name = "menu.arenas.arenaIcon.name",
-        lore = "menu.arenas.arenaIcon.lore"
-    ).buildItem(locale) {
-        unparsed("display_name", displayName)
-        inserting("arena_state", state.getFriendlyName(locale))
-        unparsed("map_name", arenaMap.mapName)
-        unparsed("team_size", (arenaMap.maxPlayers / 2).toString())
-        unparsed("current_players", teamPlayers().size.toString())
-        unparsed("max_players", arenaMap.maxPlayers.toString())
-        unparsed("arena_short_uuid", uuid.toString().split("-").first())
-    }
-
 }
