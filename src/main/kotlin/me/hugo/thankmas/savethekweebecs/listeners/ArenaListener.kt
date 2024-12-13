@@ -154,7 +154,7 @@ public class ArenaListener : TranslatedComponent, Listener {
                         unparsed("killer", attacker.name)
                     }
 
-                    attackerData.addCoins(10, "kill")
+                    attackerData.addCoins(if (arena.arenaMap.defenderTeam == playerData.currentTeam) 15 else 10, "kill")
                 }
             }
 
