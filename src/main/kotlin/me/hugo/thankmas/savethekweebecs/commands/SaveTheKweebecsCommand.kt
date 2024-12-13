@@ -139,17 +139,7 @@ public class SaveTheKweebecsCommand : TranslatedComponent {
 
         if (team.shopItems.isEmpty()) return
 
-        /*PaginatedMenu(
-            9 * 4, "menu.shop.title", PaginatedMenu.PageFormat.TWO_ROWS_TRIMMED.format,
-            ItemStack(Material.NETHER_STAR)
-                .name("menu.shop.icon.name", playerData.locale)
-                .putLore("menu.shop.icon.lore", playerData.locale),
-            null,
-            playerData.locale,
-            true
-        ).also { menu ->
-            team.shopItems.sortedBy { it.cost }.forEach { menu.addItem(it.getIcon(sender)) }
-        }.open(sender)*/
+         team.openShopMenu(sender)
     }
 
     @DefaultFor("savethekweebecs admin", "stk admin")
@@ -205,32 +195,6 @@ public class SaveTheKweebecsCommand : TranslatedComponent {
         team.giveItems(sender, clearInventory = true, giveArenaItemSet = false)
     }
 
-    @Subcommand("admin kit save")
-    @Description("Saves the kit for the team!")
-    @CommandPermission("savethekweebecs.admin")
-    private fun saveKit(sender: Player, team: MapTeam) {
-        val playerItems = mutableMapOf<Int, ItemStack>()
-
-        (0..sender.inventory.size).forEach { slot ->
-            val item = sender.inventory.getItem(slot) ?: return@forEach
-            if (!item.type.isAir) playerItems[slot] = item
-        }
-
-        team.kitItems = playerItems
-
-        main.config.set("teams.${team.id}.items", null)
-        playerItems.forEach { main.config.set("teams.${team.id}.items.${it.key}", it.value) }
-
-        main.saveConfig()
-
-        sender.sendMessage(
-            Component.text(
-                "Successfully saved kit for ${team.id}.",
-                NamedTextColor.GREEN
-            )
-        )
-    }
-
     @DefaultFor("savethekweebecs admin shop", "stk admin shop")
     @Description("Help for the shop system.")
     @CommandPermission("savethekweebecs.admin")
@@ -238,98 +202,10 @@ public class SaveTheKweebecsCommand : TranslatedComponent {
         sender.sendTranslated("system.shop.help")
     }
 
-    @Subcommand("admin shop list")
-    @Description("Lists the shop items for a team!")
-    @CommandPermission("savethekweebecs.admin")
-    private fun listShopItems(sender: Player, team: MapTeam) {
-        val items = team.shopItems
-
-        if (items.isEmpty()) {
-            sender.sendTranslated("system.shop.noShop") {
-                unparsed("team", team.id)
-            }
-            return
-        }
-
-        team.shopItems.forEach {
-            sender.sendTranslated("system.shop.listedItem") {
-                unparsed("key", it.key)
-                unparsed("cost", it.cost.toString())
-            }
-        }
-    }
-
-    @Subcommand("admin shop add")
-    @Description("Add the item in your main hand to a team's shop.")
-    @CommandPermission("savethekweebecs.admin")
-    private fun addShopItem(sender: Player, key: String, cost: Int, team: MapTeam) {
-        val items = team.shopItems
-
-        if (items.any { it.key == key }) {
-            sender.sendTranslated("system.shop.duplicateKey") {
-                unparsed("key", team.id)
-            }
-            return
-        }
-
-        val item = sender.inventory.itemInMainHand
-
-        if (item.type.isAir) {
-            sender.sendTranslated("system.shop.noItem")
-            return
-        }
-
-        team.shopItems.add(TeamShopItem(key, item, cost))
-
-        val configPath = "teams.${team.id}.shop-items.$key"
-
-        main.config.set("$configPath.cost", cost)
-        main.config.set("$configPath.item", item)
-
-        main.saveConfig()
-
-        sender.sendTranslated("system.shop.added") {
-            unparsed("key", key)
-            unparsed("team", team.id)
-        }
-    }
-
-    @Subcommand("admin shop remove")
-    @Description("Remove the item from a team's shop.")
-    @CommandPermission("savethekweebecs.admin")
-    private fun removeShopItem(sender: Player, key: String, team: MapTeam) {
-        val items = team.shopItems
-        val item = items.firstOrNull { it.key == key }
-
-        if (item == null) {
-            sender.sendTranslated("system.shop.itemNotFound")
-            return
-        }
-
-        team.shopItems.remove(item)
-
-        val configPath = "teams.${team.id}.shop-items.$key"
-        main.config.set(configPath, null)
-        main.saveConfig()
-
-        sender.sendTranslated("system.shop.removed") {
-            unparsed("key", key)
-            unparsed("team", team.id)
-        }
-    }
-
     @Subcommand("admin shop get")
     @Description("Get the item from a team's shop.")
     @CommandPermission("savethekweebecs.admin")
     private fun getShopItem(sender: Player, key: String, team: MapTeam) {
-        val items = team.shopItems
-        val item = items.firstOrNull { it.key == key }
-
-        if (item == null) {
-            sender.sendTranslated("system.shop.itemNotFound")
-            return
-        }
-
-        sender.inventory.addItem(item.item)
+        team.giveShopItem(sender, key)
     }
 }

@@ -1,18 +1,23 @@
 package me.hugo.thankmas.savethekweebecs.team
 
+import dev.kezz.miniphrase.audience.sendTranslated
 import me.hugo.thankmas.config.string
 import me.hugo.thankmas.gui.Icon
+import me.hugo.thankmas.gui.Menu
+import me.hugo.thankmas.items.TranslatableItem
+import me.hugo.thankmas.items.addToLore
 import me.hugo.thankmas.items.itemsets.ItemSetRegistry
-import me.hugo.thankmas.items.putLore
 import me.hugo.thankmas.lang.TranslatedComponent
+import me.hugo.thankmas.player.playSound
 import me.hugo.thankmas.player.skinProperty
 import me.hugo.thankmas.player.translateList
 import me.hugo.thankmas.savethekweebecs.extension.playerData
-import org.bukkit.Material
+import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.format.NamedTextColor
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer
+import org.bukkit.Sound
 import org.bukkit.configuration.file.FileConfiguration
 import org.bukkit.entity.Player
-import org.bukkit.inventory.ItemStack
-import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
 /**
@@ -29,11 +34,12 @@ public class MapTeam(
     public val skins: List<TeamSkin>,
     public val chatIcon: String,
     public val teamIcon: String,
-    public var kitItems: Map<Int, ItemStack> = mapOf(),
-    public var shopItems: MutableList<TeamShopItem> = mutableListOf()
-) : KoinComponent {
+    public var kitItems: Map<Int, TranslatableItem> = emptyMap(),
+    public var shopItems: Map<String, TeamShopItem> = emptyMap()
+) : TranslatedComponent {
 
     private val itemSetManager: ItemSetRegistry by inject()
+    private val shopMenu = Menu("menu.shop.title", 9 * 6, mutableMapOf(), Menu.MenuFormat.STK_SHOP, miniPhrase)
 
     /** Loads all this team's information from a config file. */
     public constructor(teamId: String, config: FileConfiguration) : this(
@@ -50,17 +56,16 @@ public class MapTeam(
         config.string("$teamId.chat-icon"),
         config.string("$teamId.team-icon"),
         config.getConfigurationSection("$teamId.items")?.getKeys(false)
-            ?.associate { slot -> slot.toInt() to config.getItemStack("$teamId.items.$slot")!! }
-            ?: mapOf(),
-        config.getConfigurationSection("$teamId.shop-items")?.getKeys(false)
-            ?.map { key ->
-                TeamShopItem(
-                    key,
-                    config.getItemStack("$teamId.shop-items.$key.item") ?: ItemStack(Material.BEDROCK),
-                    config.getInt("$teamId.shop-items.$key.cost")
-                )
-            }?.toMutableList() ?: mutableListOf()
+            ?.associate { slot -> slot.toInt() to TranslatableItem(config, "$teamId.items.$slot") }
+            ?: emptyMap(),
+        config.getConfigurationSection("$teamId.shop-items")?.getKeys(false)?.associateWith { key ->
+            TeamShopItem("$teamId.shop-items.$key", config)
+        } ?: emptyMap()
     )
+
+    init {
+        shopItems.values.forEach { shopMenu.addIcon(it.getIcon()) }
+    }
 
     /**
      * Gives [player] the items in this team's kit.
@@ -80,8 +85,18 @@ public class MapTeam(
             inventory.setArmorContents(null)
         }
 
-        kitItems.forEach { inventory.setItem(it.key, it.value) }
+        kitItems.forEach { inventory.setItem(it.key, it.value.buildItem(player)) }
         if (giveArenaItemSet) itemSetManager.giveSetNullable("arena", player)
+    }
+
+    /** Opens this team's shop menu to [player]. */
+    public fun openShopMenu(player: Player) {
+        shopMenu.open(player)
+    }
+
+    /** Gives [player] the shop item with id [key]. */
+    public fun giveShopItem(player: Player, key: String) {
+        player.inventory.addItem(shopItems.getValue(key).item.buildItem(player))
     }
 }
 
@@ -89,51 +104,63 @@ public class MapTeam(
  * Item that can be bought in the shop for
  * certain [MapTeam].
  */
-public data class TeamShopItem(val key: String, val item: ItemStack, val cost: Int) : TranslatedComponent {
+public data class TeamShopItem(val item: TranslatableItem, val cost: Int) : TranslatedComponent {
+
+    /** Retries this shop item from a config file. */
+    public constructor(path: String, config: FileConfiguration) : this(
+        TranslatableItem(config, "$path.item"),
+        config.getInt("$path.cost")
+    )
+
     /**
      * Returns a clickable icon used to buy this shop item.
      */
-    public fun getIcon(player: Player): Icon {
-        val isAvailable = (player.playerData().coins ?: 0) >= cost
-        val translatedLore = player.translateList(
-            if (isAvailable)
-                "menu.shop.icon.availableLore"
-            else "menu.shop.icon.notAvailableLore",
-        ) {
-            unparsed("cost", cost.toString())
-        }
+    public fun getIcon(): Icon {
+        return Icon({ context, _ ->
+            val clicker = context.clicker
 
-        return Icon({ clicker, _ ->
-            /* val playerData = clicker.playerData() ?: return@addClickAction
-             val canBuy = (clicker.playerData()?.getCoins() ?: 0) >= cost
+            val playerData = clicker.playerData()
+            val canBuy = playerData.coins >= cost
 
-             if (!canBuy) {
-                 clicker.sendTranslated("menu.shop.poor")
-                 clicker.playSound(Sound.ENTITY_ENDERMAN_TELEPORT)
+            if (!canBuy) {
+                clicker.sendTranslated("menu.shop.poor")
+                clicker.playSound(Sound.ENTITY_ENDERMAN_TELEPORT)
 
-                 return@addClickAction
-             }
+                return@Icon
+            }
 
-             clicker.sendTranslated(
-                 "menu.shop.item_bought",
-                 component(
-                     "item",
-                     Component.text(
-                         PlainTextComponentSerializer.plainText()
-                             .serialize(item.itemMeta?.displayName() ?: item.displayName()), NamedTextColor.GREEN
-                     )
-                 ),
-                 unparsed("amount", item.amount.toString())
-             )
-             playerData.addCoins(cost * -1, "bought_item")
+            val vanillaItem = item.buildItem(clicker)
 
-             clicker.intelligentGive(item)
-             clicker.playSound(Sound.ENTITY_EXPERIENCE_ORB_PICKUP)
+            clicker.sendTranslated("menu.shop.item_bought") {
+                inserting(
+                    "item",
+                    Component.text(
+                        PlainTextComponentSerializer.plainText()
+                            .serialize(vanillaItem.itemMeta?.displayName() ?: vanillaItem.displayName()),
+                        NamedTextColor.GREEN
+                    )
+                )
+                unparsed("amount", item.amount.toString())
+            }
+            playerData.addCoins(cost * -1, "bought_item")
 
-             clicker.closeInventory()*/
+            clicker.inventory.addItem(vanillaItem)
+            clicker.playSound(Sound.ENTITY_EXPERIENCE_ORB_PICKUP)
+
+            clicker.closeInventory()
         }) {
-            ItemStack(item)
-                .putLore(item.itemMeta?.lore()?.plus(translatedLore) ?: translatedLore)
+
+            val isAvailable = it.playerData().coins >= cost
+            val vanillaItem = item.buildItem(it)
+
+            vanillaItem.clone().addToLore(
+                it.translateList(
+                    if (isAvailable)
+                        "menu.shop.icon.availableLore"
+                    else "menu.shop.icon.notAvailableLore",
+                ) {
+                    unparsed("cost", cost.toString())
+                })
         }
     }
 }
