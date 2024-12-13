@@ -24,7 +24,7 @@ import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.jetbrains.exposed.sql.upsert
+import org.jetbrains.exposed.sql.update
 import org.koin.core.component.inject
 import java.util.*
 
@@ -170,8 +170,7 @@ public class SaveTheKweebecsPlayerData(playerUUID: UUID, instance: SaveTheKweebe
 
         transaction {
             // Update or insert this player's selected stuff!
-            PlayerData.upsert {
-                it[uuid] = playerId
+            PlayerData.update({ PlayerData.uuid eq playerId }) {
                 it[selectedCosmetic] = this@SaveTheKweebecsPlayerData.selectedCosmetic.value?.id ?: ""
                 it[currency] = this@SaveTheKweebecsPlayerData.currency
             }
