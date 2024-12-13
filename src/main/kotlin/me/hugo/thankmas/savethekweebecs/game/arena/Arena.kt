@@ -1,10 +1,8 @@
 package me.hugo.thankmas.savethekweebecs.game.arena
 
-import dev.kezz.miniphrase.MiniPhraseContext
 import dev.kezz.miniphrase.audience.sendTranslated
 import live.minehub.polarpaper.Config
 import live.minehub.polarpaper.Polar
-import me.hugo.thankmas.items.TranslatableItem
 import me.hugo.thankmas.items.itemsets.ItemSetRegistry
 import me.hugo.thankmas.lang.TranslatedComponent
 import me.hugo.thankmas.location.MapPoint

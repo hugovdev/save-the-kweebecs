@@ -173,7 +173,7 @@ public class SaveTheKweebecsPlayerData(playerUUID: UUID, instance: SaveTheKweebe
             PlayerData.upsert {
                 it[uuid] = playerId
                 it[selectedCosmetic] = this@SaveTheKweebecsPlayerData.selectedCosmetic.value?.id ?: ""
-                it[currency] = currency
+                it[currency] = this@SaveTheKweebecsPlayerData.currency
             }
         }
     }
