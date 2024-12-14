@@ -177,8 +177,8 @@ public class SaveTheKweebecsPlayerData(playerUUID: UUID, instance: SaveTheKweebe
         }
     }
 
-    override fun onSave(player: Player) {
-        super.onSave(player)
+    override fun onQuit(player: Player) {
+        super.onQuit(player)
 
         currentArena?.leave(player, true)
         musicManager.stopTrack(player)

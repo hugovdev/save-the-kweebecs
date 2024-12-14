@@ -155,6 +155,7 @@ public class ArenaListener : TranslatedComponent, Listener {
                     }
 
                     attackerData.addCoins(if (arena.arenaMap.defenderTeam == playerData.currentTeam) 15 else 10, "kill")
+                    attackerData.currency += 15
                 }
             }
 
@@ -206,7 +207,10 @@ public class ArenaListener : TranslatedComponent, Listener {
                 unparsed("total_npcs", arena.remainingNPCs.size.toString())
             }
 
-            player.playerData().addCoins(15, "saved_${attackerTeam.id}")
+            player.playerData().apply {
+                addCoins(15, "saved_${attackerTeam.id}")
+                currency += 25
+            }
 
             location.world.spawnParticle(Particle.CLOUD, location.clone().add(0.0, 0.55, 0.0), 5, 0.05, 0.1, 0.05, 0.02)
 

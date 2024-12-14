@@ -1,5 +1,6 @@
 package me.hugo.thankmas.savethekweebecs.commands
 
+import me.hugo.thankmas.ThankmasPlugin
 import me.hugo.thankmas.savethekweebecs.extension.arena
 import net.kyori.adventure.text.Component
 import org.bukkit.entity.Player
@@ -15,7 +16,11 @@ public class LobbyCommand {
 
         if (arena != null) {
             arena.leave(sender)
-        } else sender.kick(Component.text("Sending back to hub..."))
+        } else {
+            ThankmasPlugin.instance().playerDataManager.getPlayerData(sender.uniqueId).saveSafely(sender) {
+                sender.kick(Component.text("Sending back to hub..."))
+            }
+        }
     }
 
 }
