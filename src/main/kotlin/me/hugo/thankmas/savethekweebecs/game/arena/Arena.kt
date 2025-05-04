@@ -216,6 +216,7 @@ public class Arena(public val arenaMap: ArenaMap, public val displayName: String
                 false,
                 false,
                 true,
+                true,
                 WorldType.NORMAL,
                 World.Environment.NORMAL,
                 emptyList()

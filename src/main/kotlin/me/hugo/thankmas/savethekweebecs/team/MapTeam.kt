@@ -82,7 +82,7 @@ public class MapTeam(
 
         if (clearInventory) {
             inventory.clear()
-            inventory.setArmorContents(null)
+            inventory.armorContents = emptyArray()
         }
 
         kitItems.forEach { inventory.setItem(it.key, it.value.buildItem(player)) }
