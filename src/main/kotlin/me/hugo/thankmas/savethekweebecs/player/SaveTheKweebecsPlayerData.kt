@@ -97,15 +97,6 @@ public class SaveTheKweebecsPlayerData(playerUUID: UUID, instance: SaveTheKweebe
     public var coins: Int = 0
         private set
 
-    init {
-        transaction {
-            val playerData = PlayerData.selectAll().where { PlayerData.uuid eq playerUUID.toString() }.singleOrNull()
-
-            loadCurrency(playerData)
-            loadCosmetics(playerData)
-        }
-    }
-
     public fun resetCoins() {
         coins = 0
     }
