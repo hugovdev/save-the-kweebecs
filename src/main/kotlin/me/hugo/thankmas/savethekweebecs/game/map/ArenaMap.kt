@@ -1,6 +1,7 @@
 package me.hugo.thankmas.savethekweebecs.game.map
 
 import live.minehub.polarpaper.PolarWorld
+import me.hugo.thankmas.ThankmasPlugin
 import me.hugo.thankmas.config.string
 import me.hugo.thankmas.items.TranslatableItem
 import me.hugo.thankmas.location.MapPoint
@@ -98,11 +99,11 @@ public class ArenaMap(mapsConfig: FileConfiguration, private val configName: Str
         private set
 
     init {
-        val main = SaveTheKweebecs.instance()
+        val main = ThankmasPlugin.instance<SaveTheKweebecs>()
 
         main.logger.info("Loading map $configName...")
 
-        Bukkit.getScheduler().runTaskAsynchronously(SaveTheKweebecs.instance(), Runnable {
+        Bukkit.getScheduler().runTaskAsynchronously(ThankmasPlugin.instance<SaveTheKweebecs>(), Runnable {
             if (!polarWorldRegistry.polarWorldContainer.exists()) polarWorldRegistry.polarWorldContainer.mkdirs()
             s3WorldSynchronizer.downloadFile(
                 "save_the_kweebecs/$polarFileName",
@@ -138,7 +139,7 @@ public class ArenaMap(mapsConfig: FileConfiguration, private val configName: Str
 
             if (isAvailable) {
                 // Register a game for the arena by default!
-                Bukkit.getScheduler().runTask(SaveTheKweebecs.instance(), Runnable {
+                Bukkit.getScheduler().runTask(ThankmasPlugin.instance<SaveTheKweebecs>(), Runnable {
                     val arena = Arena(this, mapName)
                     arenaRegistry.register(arena.uuid, arena)
 

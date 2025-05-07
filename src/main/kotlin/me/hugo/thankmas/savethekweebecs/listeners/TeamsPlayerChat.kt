@@ -49,7 +49,8 @@ public class TeamsPlayerChat : Listener, Translated {
 
         event.renderer { source, sourceName, message, viewer ->
             if (viewer is Player) {
-                val sourceData = SaveTheKweebecs.instance().playerDataManager.getPlayerData(source.uniqueId)
+                val instance = ThankmasPlugin.instance<SaveTheKweebecs>()
+                val sourceData = instance.playerDataManager.getPlayerData(source.uniqueId)
 
                 val messageBuilder = Component.text()
 
@@ -59,7 +60,7 @@ public class TeamsPlayerChat : Listener, Translated {
                 )
 
                 messageBuilder.append(
-                    ThankmasPlugin.instance().globalTranslations.translate(
+                    instance.globalTranslations.translate(
                         "rank.${sourceData.getPrimaryGroupName()}.chat",
                         viewer.locale()
                     ) {

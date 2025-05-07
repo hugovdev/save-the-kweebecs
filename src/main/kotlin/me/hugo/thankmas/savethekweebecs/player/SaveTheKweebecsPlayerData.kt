@@ -2,6 +2,7 @@ package me.hugo.thankmas.savethekweebecs.player
 
 import com.destroystokyo.paper.profile.ProfileProperty
 import dev.kezz.miniphrase.audience.sendTranslated
+import me.hugo.thankmas.ThankmasPlugin
 import me.hugo.thankmas.database.PlayerData
 import me.hugo.thankmas.items.itemsets.ItemSetRegistry
 import me.hugo.thankmas.lang.TranslatedComponent
@@ -22,7 +23,6 @@ import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
-import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
 import org.koin.core.component.inject
@@ -140,7 +140,7 @@ public class SaveTheKweebecsPlayerData(playerUUID: UUID, instance: SaveTheKweebe
 
         playerSkin = player.playerProfile.properties.firstOrNull { it.name == "textures" }
 
-        val instance = SaveTheKweebecs.instance()
+        val instance = ThankmasPlugin.instance<SaveTheKweebecs>()
 
         Bukkit.getServer().onlinePlayers.forEach {
             if (it.arena() == null) it.updateBoardTags("all_players")

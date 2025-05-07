@@ -1,5 +1,6 @@
 package me.hugo.thankmas.savethekweebecs.game.map
 
+import me.hugo.thankmas.ThankmasPlugin
 import me.hugo.thankmas.config.ConfigurationProvider
 import me.hugo.thankmas.gui.Icon
 import me.hugo.thankmas.gui.Menu
@@ -27,7 +28,7 @@ import org.koin.core.component.inject
 @Single
 public class MapRegistry : AutoCompletableMapRegistry<ArenaMap>(ArenaMap::class.java), TranslatedComponent {
 
-    private val main: SaveTheKweebecs = SaveTheKweebecs.instance()
+    private val main: SaveTheKweebecs = ThankmasPlugin.instance<ThankmasPlugin<*>>()
 
     private val itemManager: ItemSetRegistry by inject()
     private val musicManager: MusicManager by inject()

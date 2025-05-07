@@ -1,5 +1,6 @@
 package me.hugo.thankmas.savethekweebecs.task
 
+import me.hugo.thankmas.ThankmasPlugin
 import me.hugo.thankmas.lang.TranslatedComponent
 import me.hugo.thankmas.listener.PlayerSpawnpointOnJoin
 import me.hugo.thankmas.player.playSound
@@ -34,7 +35,7 @@ public class GameControllerTask : TranslatedComponent, BukkitRunnable() {
     private val teleporting: MutableSet<UUID> = mutableSetOf()
 
     override fun run() {
-        SaveTheKweebecs.instance().playerDataManager.getAllPlayerData()
+        ThankmasPlugin.instance<SaveTheKweebecs>().playerDataManager.getAllPlayerData()
             .asSequence().filter { it.currentArena == null }
             .mapNotNull { it.onlinePlayerOrNull }
             .filter {

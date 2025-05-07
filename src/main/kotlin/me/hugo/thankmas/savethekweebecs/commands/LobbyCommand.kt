@@ -17,7 +17,7 @@ public class LobbyCommand {
         if (arena != null) {
             arena.leave(sender)
         } else {
-            ThankmasPlugin.instance().playerDataManager.getPlayerData(sender.uniqueId).saveSafely(sender) {
+            ThankmasPlugin.instance<ThankmasPlugin<*>>().playerDataManager.getPlayerData(sender.uniqueId).saveSafely(sender) {
                 sender.kick(Component.text("Sending back to hub..."))
             }
         }

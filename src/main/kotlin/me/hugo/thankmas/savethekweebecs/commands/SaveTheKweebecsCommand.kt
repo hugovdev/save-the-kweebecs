@@ -2,7 +2,6 @@ package me.hugo.thankmas.savethekweebecs.commands
 
 import dev.kezz.miniphrase.audience.sendTranslated
 import me.hugo.thankmas.lang.TranslatedComponent
-import me.hugo.thankmas.savethekweebecs.SaveTheKweebecs
 import me.hugo.thankmas.savethekweebecs.extension.arena
 import me.hugo.thankmas.savethekweebecs.extension.hasStarted
 import me.hugo.thankmas.savethekweebecs.extension.playerData
@@ -10,9 +9,7 @@ import me.hugo.thankmas.savethekweebecs.game.arena.Arena
 import me.hugo.thankmas.savethekweebecs.game.arena.ArenaRegistry
 import me.hugo.thankmas.savethekweebecs.game.map.ArenaMap
 import me.hugo.thankmas.savethekweebecs.game.map.MapRegistry
-import me.hugo.thankmas.savethekweebecs.scoreboard.KweebecScoreboardManager
 import me.hugo.thankmas.savethekweebecs.team.MapTeam
-import me.hugo.thankmas.savethekweebecs.team.TeamRegistry
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder
@@ -29,13 +26,8 @@ import java.util.*
 @Description("Main SaveTheKweebecs command.")
 public class SaveTheKweebecsCommand : TranslatedComponent {
 
-    private val main = SaveTheKweebecs.instance()
-
     private val mapRegistry: MapRegistry by inject()
     private val arenaRegistry: ArenaRegistry by inject()
-
-    private val scoreboardManager: KweebecScoreboardManager by inject()
-    private val teamRegistry: TeamRegistry by inject()
 
     @DefaultFor("savethekweebecs", "stk", "savethekweebecs help", "stk help")
     @Description("Help for the the main STK plugin.")

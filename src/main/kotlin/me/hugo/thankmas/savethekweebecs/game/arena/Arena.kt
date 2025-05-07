@@ -3,6 +3,7 @@ package me.hugo.thankmas.savethekweebecs.game.arena
 import dev.kezz.miniphrase.audience.sendTranslated
 import live.minehub.polarpaper.Config
 import live.minehub.polarpaper.Polar
+import me.hugo.thankmas.ThankmasPlugin
 import me.hugo.thankmas.items.itemsets.ItemSetRegistry
 import me.hugo.thankmas.lang.TranslatedComponent
 import me.hugo.thankmas.location.MapPoint
@@ -40,7 +41,7 @@ import java.util.concurrent.ConcurrentMap
  */
 public class Arena(public val arenaMap: ArenaMap, public val displayName: String) : TranslatedComponent {
 
-    private val main = SaveTheKweebecs.instance()
+    private val main = ThankmasPlugin.instance<SaveTheKweebecs>()
 
     private val mapRegistry: MapRegistry by inject()
     private val scoreboardManager: me.hugo.thankmas.savethekweebecs.scoreboard.KweebecScoreboardManager by inject()

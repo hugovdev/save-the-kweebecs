@@ -3,7 +3,6 @@ package me.hugo.thankmas.savethekweebecs
 import me.hugo.thankmas.ThankmasPlugin
 import me.hugo.thankmas.commands.CosmeticsCommand
 import me.hugo.thankmas.commands.TranslationsCommands
-import me.hugo.thankmas.config.string
 import me.hugo.thankmas.cosmetics.CosmeticsRegistry
 import me.hugo.thankmas.items.itemsets.ItemSetRegistry
 import me.hugo.thankmas.listener.PlayerDataLoader
@@ -25,7 +24,6 @@ import me.hugo.thankmas.savethekweebecs.player.SaveTheKweebecsPlayerData
 import me.hugo.thankmas.savethekweebecs.task.GameRegionControllerTask
 import me.hugo.thankmas.savethekweebecs.team.TeamRegistry
 import me.hugo.thankmas.scoreboard.ScoreboardTemplateManager
-import me.hugo.thankmas.world.registry.AnvilWorldRegistry
 import org.bukkit.Bukkit
 import org.koin.core.component.inject
 import org.koin.core.context.loadKoinModules
@@ -33,10 +31,10 @@ import org.koin.core.parameter.parametersOf
 import org.koin.ksp.generated.module
 import revxrsal.commands.bukkit.BukkitCommandHandler
 
-public class SaveTheKweebecs : ThankmasPlugin<SaveTheKweebecsPlayerData>(listOf("save_the_kweebecs")) {
+public class SaveTheKweebecs : ThankmasPlugin<SaveTheKweebecsPlayerData>(
+    listOf("save_the_kweebecs"),{ listOf(SaveTheKweebecsModules().module) }) {
 
-    private val anvilWorldRegistry: AnvilWorldRegistry by inject()
-    private val spawnpointOnJoin: PlayerSpawnpointOnJoin by inject { parametersOf(hubWorldName, "lobby_spawnpoint") }
+    private val spawnpointOnJoin: PlayerSpawnpointOnJoin by inject { parametersOf(this, "lobby_spawnpoint") }
     private val musicManager: MusicManager by inject()
 
     override val scoreboardTemplateManager: ScoreboardTemplateManager<SaveTheKweebecsPlayerData> by inject {
@@ -50,34 +48,8 @@ public class SaveTheKweebecs : ThankmasPlugin<SaveTheKweebecsPlayerData>(listOf(
 
     private val itemSetManager: ItemSetRegistry by inject { parametersOf(configProvider.getOrLoad("save_the_kweebecs/config.yml")) }
 
-    private var hubWorldName: String = "world"
 
     private lateinit var commandHandler: BukkitCommandHandler
-
-    public companion object {
-        private lateinit var main: SaveTheKweebecs
-
-        public fun instance(): SaveTheKweebecs {
-            return main
-        }
-    }
-
-    override fun onLoad() {
-        super.onLoad()
-
-        main = this
-        loadKoinModules(SaveTheKweebecsModules().module)
-
-        val scopeWorld = configProvider.getOrLoad("save_the_kweebecs/config.yml").string("hub-world")
-
-        Bukkit.unloadWorld(hubWorldName, false)
-
-        s3WorldSynchronizer.downloadWorld(
-            scopeWorld,
-            Bukkit.getWorldContainer().resolve(hubWorldName).also { it.mkdirs() })
-
-        anvilWorldRegistry.loadMarkers(hubWorldName)
-    }
 
     override fun onEnable() {
         super.onEnable()
@@ -130,7 +102,7 @@ public class SaveTheKweebecs : ThankmasPlugin<SaveTheKweebecsPlayerData>(listOf(
         })
 
         GameRegionControllerTask().runTaskTimer(this, 0L, 1L)
-        musicManager.runTaskTimer(instance(), 0L, 2L)
+        musicManager.runTaskTimer(instance<SaveTheKweebecs>(), 0L, 2L)
 
         Bukkit.getScoreboardManager().mainScoreboard.teams.forEach { it.unregister() }
         Bukkit.getScoreboardManager().mainScoreboard.objectives.forEach { it.unregister() }

@@ -1,5 +1,6 @@
 package me.hugo.thankmas.savethekweebecs.text
 
+import me.hugo.thankmas.ThankmasPlugin
 import me.hugo.thankmas.lang.TranslatedComponent
 import me.hugo.thankmas.player.translate
 import me.hugo.thankmas.savethekweebecs.SaveTheKweebecs
@@ -66,7 +67,7 @@ public class TextPopUp(
                     entity.teleportDuration = (popupMilliseconds * 0.02).toInt()
                     entity.interpolationDelay = -1
 
-                    player.showEntity(SaveTheKweebecs.instance(), entity)
+                    player.showEntity(ThankmasPlugin.instance<SaveTheKweebecs>(), entity)
                 } as TextDisplay
 
             player.uniqueId to textDisplay
@@ -86,7 +87,7 @@ public class TextPopUp(
                         )
                 }
             }
-        }.runTaskLater(SaveTheKweebecs.instance(), 2L)
+        }.runTaskLater(ThankmasPlugin.instance<SaveTheKweebecs>(), 2L)
     }
 
 }

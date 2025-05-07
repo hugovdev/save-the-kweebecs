@@ -3,6 +3,7 @@ package me.hugo.thankmas.savethekweebecs.listeners
 import com.destroystokyo.paper.MaterialSetTag
 import com.destroystokyo.paper.MaterialTags
 import com.destroystokyo.paper.event.player.PlayerPickupExperienceEvent
+import me.hugo.thankmas.ThankmasPlugin
 import me.hugo.thankmas.lang.TranslatedComponent
 import me.hugo.thankmas.music.MusicManager
 import me.hugo.thankmas.player.player
@@ -276,7 +277,7 @@ public class ArenaListener : TranslatedComponent, Listener {
         val world = player.world
         val worldFrom = event.from
 
-        val main = SaveTheKweebecs.instance()
+        val main = ThankmasPlugin.instance<SaveTheKweebecs>()
 
         world.players.forEach {
             it.showPlayer(main, player)
