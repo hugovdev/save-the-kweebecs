@@ -23,7 +23,6 @@ import kotlin.time.toJavaDuration
 private val mapRegistry: MapRegistry by KoinJavaComponent.inject(MapRegistry::class.java)
 private val musicManager: MusicManager by KoinJavaComponent.inject(MusicManager::class.java)
 
-context(MiniPhraseContext)
 public fun Arena.start() {
     if (this.teamPlayers().size < arenaMap.minPlayers) {
         time = arenaMap.defaultCountdown
@@ -132,7 +131,6 @@ public fun Arena.reset() {
     createWorld(false)
 }
 
-context(MiniPhraseContext)
 public fun Arena.announceTranslation(key: String, tags: (TagResolverBuilder.() -> Unit)? = null) {
     arenaPlayers().forEach {
         val player = it.player() ?: return@forEach

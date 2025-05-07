@@ -33,9 +33,9 @@ public enum class ArenaState(
     RESETTING(NamedTextColor.AQUA, Material.BLACK_CONCRETE);
 
     /** Returns a friendly name for this arena state fetched from the language file. */
-    context(MiniPhraseContext)
+    context(context: MiniPhraseContext)
     public fun getFriendlyName(locale: Locale): Component {
-        return miniPhrase.translate("arena.state.${this.name.lowercase()}", locale)
+        return context.miniPhrase.translate("arena.state.${this.name.lowercase()}", locale)
     }
 
 }
